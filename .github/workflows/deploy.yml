@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - names: Copier les fichires vers Contabo
+      - name: Copier les fichiers vers Contabo
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.CONTABO_HOST }}
@@ -20,7 +20,7 @@ jobs:
           source: "."
           target: "/home/value/ComIntValue-it"
 
-      - names: Build et redemarrge Docker
+      - name: Build et redemarrge Docker
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.CONTABO_HOST }}
