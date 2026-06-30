@@ -1,0 +1,27 @@
+DÉPLOIEMENT CONTABO — CHECKLIST
+================================
+
+[ ] 1. Commander VPS
+      → https://contabo.com/en/vps/  → Cloud VPS 10, Ubuntu 22.04
+      → Panneau : https://my.contabo.com/
+
+[ ] 2. Préparer l'archive (sur ce PC, PowerShell)
+      cd "C:\Users\KIM\OneDrive\ComIntValue-it"
+      .\scripts\prepare-contabo-deploy.ps1
+
+[ ] 3. IP du VPS : 167.86.118.96  (attendre fin réinstallation Contabo)
+
+[ ] 4. Mot de passe ROOT VPS (email Contabo "Initial login") — pas my.contabo.com
+[ ] 5. Envoyer et installer
+      Double-clic : Lancer-Deploiement-Contabo.bat
+      OU : set CONTABO_ROOT_PASSWORD=... && python scripts\deploy-contabo-remote.py
+
+[ ] 5. Ouvrir le portail
+      http://VOTRE_IP:3000/login
+
+[ ] 6. (Optionnel) Domaine + HTTPS
+      → docs/DEPLOIEMENT-CONTABO.md
+
+Fichiers générés :
+  - dist/valueit-intranet-contabo.zip
+  - .env.contabo  (NE PAS partager / committer)

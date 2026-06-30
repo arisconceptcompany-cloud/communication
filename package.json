@@ -1,0 +1,50 @@
+{
+  "name": "valueit-intranet",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0 -p 3000",
+    "build": "prisma generate && next build",
+    "start": "sh scripts/start-prod.sh",
+    "setup": "npm install && npm run db:push && npm run db:seed",
+    "setup:intranet": "powershell -ExecutionPolicy Bypass -File ./scripts/setup-intranet.ps1",
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "test:idees": "tsx scripts/test-idea-box.ts",
+    "lint": "next lint"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "@tailwindcss/postcss": "^4.3.1",
+    "@tailwindcss/vite": "^4.3.1",
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.2.3",
+    "lucide-react": "^1.18.0",
+    "nanoid": "^5.1.11",
+    "next": "^15.5.19",
+    "nodemailer": "^8.0.10",
+    "picocolors": "^1.1.1",
+    "postcss": "^8.5.15",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "scheduler": "^0.27.0",
+    "source-map-js": "^1.2.1",
+    "styled-jsx": "^5.1.6",
+    "tailwindcss": "^4.3.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.15.21",
+    "@types/nodemailer": "^7.0.9",
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.5",
+    "prisma": "^6.8.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}

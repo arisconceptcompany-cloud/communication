@@ -1,0 +1,12 @@
+node_modules
+.next
+.env
+.env.local
+.env.contabo
+dist/
+data/*.db
+data/*.db-journal
+*.log
+.DS_Store
+public/uploads/posts/*
+!public/uploads/posts/.gitkeep

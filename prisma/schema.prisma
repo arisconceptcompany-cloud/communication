@@ -1,0 +1,286 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  RH
+  EMPLOYEE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role     @default(EMPLOYEE)
+  department   String?
+  birthDate    DateTime?
+  preferences  String   @default("{}")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  rhSubmissions   RhSubmission[]
+  announcements   Announcement[]
+  postReactions   PostReaction[]
+  postComments    PostComment[]
+  postSaves       PostSave[]
+  pollVotes       PostPollVote[]
+  postViews       PostView[]
+  postRevisions   PostRevision[]
+}
+
+model OrgNode {
+  id         String   @id @default(cuid())
+  name       String
+  title      String?
+  email      String?
+  department String
+  parentId   String?
+  parent     OrgNode? @relation("OrgTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children   OrgNode[] @relation("OrgTree")
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+}
+
+model RhSubmission {
+  id          String   @id @default(cuid())
+  subject     String
+  category    String
+  priority    String
+  body        String
+  attachments String?
+  submitterId String?
+  submitter   User?    @relation(fields: [submitterId], references: [id])
+  status      String   @default("nouveau")
+  createdAt   DateTime @default(now())
+}
+
+model ChatMessage {
+  id            String         @id @default(cuid())
+  author        String         @default("Anonyme")
+  sessionId     String?
+  channel       String         @default("general")
+  content       String
+  imageUrl      String?
+  attachmentUrl String?
+  createdAt     DateTime       @default(now())
+  deletedAt     DateTime?
+  reactions     ChatReaction[]
+  reads         ChatRead[]
+}
+
+model ChatReaction {
+  id        String      @id @default(cuid())
+  messageId String
+  message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  sessionId String
+  emoji     String
+  createdAt DateTime    @default(now())
+
+  @@unique([messageId, sessionId])
+}
+
+model ChatRead {
+  id        String      @id @default(cuid())
+  messageId String
+  message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  sessionId String
+  createdAt DateTime    @default(now())
+
+  @@unique([messageId, sessionId])
+}
+
+model ChatTyping {
+  sessionId String
+  channel   String
+  author    String
+  updatedAt DateTime @updatedAt
+
+  @@id([sessionId, channel])
+}
+
+model ChatBan {
+  id        String    @id @default(cuid())
+  sessionId String?
+  ipHash    String?
+  reason    String?
+  until     DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model ChatReport {
+  id        String   @id @default(cuid())
+  messageId String?
+  sessionId String?
+  ipHash    String?
+  reason    String
+  createdAt DateTime @default(now())
+}
+
+model IdeaSubmission {
+  id        String   @id @default(cuid())
+  title     String
+  category  String
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model Announcement {
+  id                     String    @id @default(cuid())
+  title                  String
+  body                   String
+  category               String    @default("general")
+  imageUrl               String?
+  videoUrl               String?
+  attachmentUrl          String?
+  mediaGallery           String?
+  taggedUserIds          String?
+  moodActivity           String?
+  location               String?
+  targetDepartment       String?
+  published              Boolean   @default(true)
+  pinned                 Boolean   @default(false)
+  allowComments          Boolean   @default(true)
+  allowReactions         Boolean   @default(true)
+  allowAnonymousComments Boolean   @default(false)
+  expiresAt              DateTime?
+  scheduledAt            DateTime?
+  linkClicks             Int       @default(0)
+  shareCount             Int       @default(0)
+  deletedAt              DateTime?
+  authorId               String
+  author                 User      @relation(fields: [authorId], references: [id])
+  reactions              PostReaction[]
+  comments               PostComment[]
+  poll                   PostPoll?
+  saves                  PostSave[]
+  revisions              PostRevision[]
+  views                  PostView[]
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+}
+
+model PostReaction {
+  id        String       @id @default(cuid())
+  postId    String
+  post      Announcement @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String       @default("like")
+  createdAt DateTime     @default(now())
+
+  @@unique([postId, userId])
+}
+
+model PostComment {
+  id             String        @id @default(cuid())
+  postId         String
+  post           Announcement  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId       String
+  author         User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentId       String?
+  parent         PostComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies        PostComment[] @relation("CommentReplies")
+  body           String
+  isAnonymous    Boolean       @default(false)
+  anonymousLabel String?
+  createdAt      DateTime      @default(now())
+}
+
+model PostPoll {
+  id        String           @id @default(cuid())
+  postId    String           @unique
+  post      Announcement     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  question  String
+  expiresAt DateTime?
+  options   PostPollOption[]
+  votes     PostPollVote[]
+  createdAt DateTime         @default(now())
+}
+
+model PostPollOption {
+  id        String         @id @default(cuid())
+  pollId    String
+  poll      PostPoll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  label     String
+  sortOrder Int            @default(0)
+  votes     PostPollVote[]
+}
+
+model PostPollVote {
+  id        String         @id @default(cuid())
+  pollId    String
+  poll      PostPoll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  optionId  String
+  option    PostPollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+
+  @@unique([pollId, userId])
+}
+
+model PostSave {
+  id        String       @id @default(cuid())
+  postId    String
+  post      Announcement @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, postId])
+}
+
+model PostView {
+  id        String       @id @default(cuid())
+  postId    String
+  post      Announcement @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([postId, userId])
+}
+
+model PostRevision {
+  id        String       @id @default(cuid())
+  postId    String
+  post      Announcement @relation(fields: [postId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  editorId  String
+  editor    User         @relation(fields: [editorId], references: [id])
+  createdAt DateTime     @default(now())
+}
+
+model PostNotificationPref {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  muted     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model HubDocument {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  url         String?
+  category    String   @default("ressource")
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+}

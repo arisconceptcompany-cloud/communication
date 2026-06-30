@@ -1,0 +1,16 @@
+services:
+  intranet:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: "file:/app/data/intranet.db"
+      SKIP_SEED: "false"
+    volumes:
+      - intranet_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  intranet_data:
