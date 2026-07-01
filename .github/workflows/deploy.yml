@@ -26,6 +26,7 @@ jobs:
           host: ${{ secrets.CONTABO_HOST }}
           username: ${{ secrets.CONTABO_USER }}
           key: ${{ secrets.CONTABO_SSH_KEY }}
+          command_timeout: 30m
           script: |
             cd /home/value/ComIntValue-it
             docker compose -f docker-compose.prod.yml down
