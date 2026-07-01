@@ -295,7 +295,24 @@ a:hover { @apply underline; }
   .hub-grid { @apply w-full; }
 
   /* Settings */
-  .settings-page { max-width: 640px; }
+  .settings-page {
+    max-width: 1000px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  }
+  .settings-page > header {
+    grid-column: 1 / -1;
+  }
+  .settings-page > .feed-card:not(.settings-full) {
+    @apply mb-0;
+  }
+  .settings-full { grid-column: 1 / -1; }
+  .settings-left { grid-column: 1; }
+  .settings-right { grid-column: 2; grid-row: 2 / 5; }
+
+  .settings-form-grid { @apply grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3; }
   .settings-card { @apply mb-4; }
   .settings-card h2 { @apply m-0 mb-4 text-[1.1rem]; }
   .settings-card--admin { border-color: rgba(232, 93, 42, 0.35); }
@@ -303,9 +320,48 @@ a:hover { @apply underline; }
   .settings-form label { @apply flex flex-col gap-[0.35rem] text-[0.9rem] font-semibold text-[var(--text-muted)]; }
   .settings-form input:not([type="checkbox"]), .settings-form select, .settings-form textarea { @apply font-normal text-[var(--text)] p-[0.5rem_0.65rem] border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--bg)]; }
   .settings-form input:disabled { @apply opacity-70 cursor-not-allowed; }
-  .settings-check { @apply flex-row! items-start gap-2! font-medium! text-[var(--text)]! cursor-pointer; }
+  .settings-check { @apply flex-row! items-center gap-2! font-medium! text-[var(--text)]! cursor-pointer; }
   .settings-check small { @apply block font-normal text-[var(--text-muted)] text-[0.8rem]; }
+  .settings-check-icon { @apply text-[var(--orange)]; }
+  .settings-divider { @apply my-4 border-t border-[var(--border)]; }
+  .settings-hint { @apply mt-3 text-[0.8rem] text-[var(--text-muted)]; }
+  .settings-form .btn { @apply self-start; }
   .settings-hint { @apply m-0 text-[0.85rem] text-[var(--text-muted)]; }
+
+  .settings-section-header { @apply flex items-center gap-2.5 mb-4 pb-3 border-b border-[var(--border)]; }
+  .settings-section-icon { @apply flex items-center justify-center w-9 h-9 rounded-lg bg-[var(--orange-muted)] text-[var(--orange)]; }
+  .settings-section-title { @apply text-[1.05rem] font-bold text-[var(--text)]; }
+  .settings-section-badge { @apply ml-auto text-[0.7rem] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[var(--orange-muted)] text-[var(--orange)]; }
+  .settings-section-header .settings-section-badge { background: rgba(232, 93, 42, 0.12); color: #e85d2a; }
+
+  .settings-pw-field { @apply flex flex-col gap-[0.35rem] text-[0.9rem] font-semibold text-[var(--text-muted)]; }
+  .settings-pw-wrapper { @apply relative flex; }
+  .settings-pw-wrapper input { @apply w-full font-normal text-[var(--text)] p-[0.5rem_2.5rem_0.5rem_0.65rem] border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--bg)]; }
+  .settings-pw-wrapper input:focus { @apply outline-none border-[var(--orange)] ring-1 ring-[var(--orange)]; }
+  .settings-pw-toggle { @apply absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-md bg-transparent border-none text-[var(--text-muted)] cursor-pointer hover:text-[var(--text)] transition-colors; }
+
+  .settings-form-actions { @apply pt-1; }
+
+  .settings-admin-list { @apply flex flex-col gap-2 mb-1; }
+  .settings-admin-row { @apply flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-sm)] bg-[var(--bg)] border border-[var(--border)]; }
+  .settings-admin-key { @apply font-mono text-[0.82rem] font-semibold text-[var(--text)] min-w-[10rem]; }
+  .settings-admin-value { @apply flex-1 text-[0.85rem] text-[var(--text-muted)] truncate; }
+  .settings-admin-edit { @apply flex-1 flex items-center gap-2; }
+  .settings-admin-edit-input { @apply flex-1 font-normal text-[var(--text)] p-[0.4rem_0.6rem] border border-[var(--orange)] rounded-[var(--radius-sm)] bg-[var(--bg-card)] text-sm outline-none; }
+  .settings-admin-edit-actions { @apply flex items-center gap-1.5 shrink-0; }
+  .settings-admin-add { @apply flex items-center gap-2; }
+  .settings-admin-add input { @apply flex-1; }
+  .settings-empty { @apply text-[0.85rem] text-[var(--text-muted)] py-2; }
+
+  .settings-profile-field { @apply flex flex-col gap-1; }
+  .settings-profile-field .label { @apply text-[0.75rem] font-semibold uppercase tracking-wider text-[var(--text-muted)]; }
+  .settings-profile-field .value {
+    @apply text-[1rem] font-semibold text-[var(--text)] p-[0.55rem_0.75rem] rounded-[var(--radius-sm)] bg-[var(--bg)] border border-[var(--border)];
+  }
+
+  @media (max-width: 768px) {
+    .settings-page { grid-template-columns: 1fr; }
+  }
 
   /* RH inbox */
   .rh-inbox { @apply flex flex-col; }
@@ -590,6 +646,59 @@ a:hover { @apply underline; }
   .post-composer--fb { @apply gap-0; }
 
   .modal-close { @apply inline-flex items-center justify-center border-none bg-none cursor-pointer text-[var(--text-muted)] w-8 h-8 rounded-md hover:bg-[var(--bg-elevated)] transition-colors; }
+}
+
+/* Toast notifications */
+.toast-stack {
+  @apply fixed bottom-4 right-4 z-[999] flex flex-col gap-2;
+  max-width: 380px;
+  pointer-events: none;
+}
+.toast-item {
+  @apply flex items-start gap-2 p-3 rounded-[var(--radius-sm)] shadow-lg border;
+  background: var(--bg-card);
+  border-color: var(--border);
+  pointer-events: auto;
+  animation: toastIn 0.25s ease;
+  max-width: 100%;
+}
+.toast-content {
+  @apply flex items-start gap-2.5 no-underline! flex-1 min-w-0;
+}
+.toast-icon {
+  @apply flex items-center justify-center w-8 h-8 rounded-full shrink-0;
+  background: var(--orange-muted);
+  color: var(--orange);
+}
+.toast-text {
+  @apply flex flex-col gap-0.5 min-w-0;
+}
+.toast-text strong {
+  @apply text-[0.85rem] text-[var(--text)] font-semibold leading-tight;
+}
+.toast-text span {
+  @apply text-[0.78rem] text-[var(--text-muted)] leading-snug block truncate;
+}
+.toast-close {
+  @apply flex items-center justify-center w-6 h-6 rounded-md border-none bg-transparent cursor-pointer shrink-0;
+  color: var(--text-muted);
+}
+.toast-close:hover {
+  @apply bg-[var(--bg-elevated)] text-[var(--text)];
+}
+.toast-mark-all-read {
+  @apply fixed bottom-2 right-2 z-[1000] flex items-center justify-center w-7 h-7 rounded-full border shadow-md cursor-pointer;
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-muted);
+  display: none;
+}
+.toast-stack:empty + .toast-mark-all-read { display: none; }
+.toast-stack:not(:empty) ~ .toast-mark-all-read { display: flex; }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(100%) scale(0.95); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 @keyframes messenger-dot {

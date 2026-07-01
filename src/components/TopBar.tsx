@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { SessionUser } from "@/lib/auth";
 import { GlobalSearch } from "./GlobalSearch";
 import {
@@ -32,9 +32,26 @@ type Props = {
   notificationCount?: number;
 };
 
-export function TopBar({ user, notificationCount = 0 }: Props) {
+export function TopBar({ user, notificationCount: initialCount = 0 }: Props) {
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [notifCount, setNotifCount] = useState(initialCount);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    function refresh() {
+      fetch("/api/notifications")
+        .then((r) => r.json())
+        .then((d) => setNotifCount(d.count ?? 0))
+        .catch(() => {});
+    }
+    refresh();
+    intervalRef.current = setInterval(refresh, 15000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [user]);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -88,11 +105,11 @@ export function TopBar({ user, notificationCount = 0 }: Props) {
               href="/notifications"
               className="top-bar-notif"
               title="Alertes RH"
-              aria-label={`${notificationCount} alerte(s) RH`}
+              aria-label={`${notifCount} notification(s)`}
             >
               <Bell size={20} aria-hidden />
-              {notificationCount > 0 && (
-                <span className="top-bar-notif-badge">{notificationCount}</span>
+              {notifCount > 0 && (
+                <span className="top-bar-notif-badge">{notifCount}</span>
               )}
             </Link>
             <Link href="/parametres" className="top-bar-profile">

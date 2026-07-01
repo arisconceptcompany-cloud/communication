@@ -123,6 +123,19 @@ export async function POST(request: Request) {
       });
     }
 
+    if (!isScheduled) {
+      await prisma.notification.create({
+        data: {
+          userId: null,
+          creatorId: session.id,
+          type: "announcement",
+          title: parsed.data.title,
+          body: `Nouvelle publication : ${parsed.data.category}`,
+          link: "/annonces",
+        },
+      });
+    }
+
     return NextResponse.json({ ok: true, id: post.id });
   } catch (error) {
     console.error("POST /api/annonces error:", error);

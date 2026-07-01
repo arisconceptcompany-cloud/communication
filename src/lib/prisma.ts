@@ -27,7 +27,7 @@ function createPrismaClient() {
 
 function getClient(): PrismaClient {
   const cached = globalForPrisma.prisma;
-  if (cached && !("chatTyping" in cached)) {
+  if (cached && !("notification" in cached)) {
     void (cached as PrismaClient).$disconnect().catch(() => {});
     globalForPrisma.prisma = undefined;
   }

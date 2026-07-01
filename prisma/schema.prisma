@@ -269,6 +269,21 @@ model PostNotificationPref {
   @@unique([userId, postId])
 }
 
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?  // null = tous les utilisateurs connectés
+  creatorId String?  // utilisateur à l'origine (exclu du compte)
+  type      String   // "announcement" | "chat" | "idea"
+  title     String
+  body      String?
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
 model AppSetting {
   key       String   @id
   value     String

@@ -110,6 +110,19 @@ export async function POST(request: Request) {
     });
   }
 
+  const author = parsed.data.author?.trim() || "Anonyme";
+  if (author !== "Anonyme" || parsed.data.sessionId) {
+    await prisma.notification.create({
+      data: {
+        userId: null,
+        type: "chat",
+        title: `Nouveau message dans ${parsed.data.channel}`,
+        body: `${author} : ${parsed.data.content.slice(0, 80)}`,
+        link: "/hub",
+      },
+    });
+  }
+
   return NextResponse.json({
     message: { ...message, createdAt: message.createdAt.toISOString() },
   });

@@ -38,7 +38,25 @@ export async function POST(request: Request) {
     );
   }
 
-  // 4. Envoi e-mail (non bloquant : une erreur mail ne fait pas échouer la requête)
+  // 4. Notification pour les administrateurs
+  try {
+    const admins = await prisma.user.findMany({
+      where: { role: "ADMIN" },
+      select: { id: true },
+    });
+    await prisma.notification.create({
+      data: {
+        type: "idea",
+        title: `Nouvelle idée : ${parsed.data.title}`,
+        body: `Catégorie : ${parsed.data.category}`,
+        link: "/idees",
+      },
+    });
+  } catch (err) {
+    console.warn("[IdeaBox] Erreur notification (non bloquant) :", err);
+  }
+
+  // 5. Envoi e-mail (non bloquant : une erreur mail ne fait pas échouer la requête)
   let simulated = false;
   try {
     const mailResult = await sendIdeaBoxEmail(parsed.data);
