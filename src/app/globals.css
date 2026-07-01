@@ -648,6 +648,29 @@ a:hover { @apply underline; }
   .modal-close { @apply inline-flex items-center justify-center border-none bg-none cursor-pointer text-[var(--text-muted)] w-8 h-8 rounded-md hover:bg-[var(--bg-elevated)] transition-colors; }
 }
 
+.notif-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+.feed-card:hover .notif-delete-btn {
+  opacity: 1;
+}
+.notif-delete-btn:hover {
+  background: var(--danger-bg, rgba(220, 38, 38, 0.12));
+  color: var(--danger, #dc2626);
+}
+
 /* Toast notifications */
 .toast-stack {
   @apply fixed bottom-4 right-4 z-[999] flex flex-col gap-2;

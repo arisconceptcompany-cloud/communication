@@ -207,6 +207,17 @@ export function PostComposer({ userName }: Props) {
             required
             rows={4}
           />
+          <small
+            style={{
+              display: "block",
+              marginTop: 4,
+              fontSize: "0.75rem",
+              color: body.trim().length >= 10 ? "var(--text-muted)" : "var(--orange)",
+              opacity: body.length === 0 ? 0.5 : 1,
+            }}
+          >
+            {body.length}/10 caractères minimum
+          </small>
           {(moodActivity || location) && (
             <p className="post-composer-status">
               {moodActivity && <span>{moodActivity}</span>}

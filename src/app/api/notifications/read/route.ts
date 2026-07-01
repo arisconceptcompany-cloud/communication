@@ -19,22 +19,54 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Données invalides" }, { status: 400 });
   }
 
+  let ids: string[] = [];
+
   if (parsed.data.all) {
-    await prisma.notification.updateMany({
+    const visible = await prisma.notification.findMany({
       where: {
         read: false,
-        OR: [
-          { userId: session.id },
-          { userId: null },
+        AND: [
+          {
+            OR: [
+              { creatorId: null },
+              { creatorId: { not: session.id } },
+            ],
+          },
+          {
+            OR: [
+              { userId: session.id },
+              { userId: null },
+            ],
+          },
         ],
+        NOT: {
+          recipients: {
+            some: {
+              userId: session.id,
+              OR: [{ read: true }, { deleted: true }],
+            },
+          },
+        },
       },
-      data: { read: true },
+      select: { id: true },
     });
+    ids = visible.map((n) => n.id);
   } else if (parsed.data.ids?.length) {
-    await prisma.notification.updateMany({
-      where: { id: { in: parsed.data.ids } },
-      data: { read: true },
-    });
+    ids = parsed.data.ids;
+  }
+
+  if (ids.length > 0) {
+    await prisma.$transaction(
+      ids.map((id) =>
+        prisma.notificationRecipient.upsert({
+          where: {
+            notificationId_userId: { notificationId: id, userId: session.id },
+          },
+          create: { notificationId: id, userId: session.id, read: true },
+          update: { read: true },
+        })
+      )
+    );
   }
 
   return NextResponse.json({ ok: true });

@@ -16,11 +16,31 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   const theme = parsePreferences(userPrefs?.preferences ?? "{}").theme ?? "light";
 
   const notificationCount = session
-    ? await prisma.announcement.count({
+    ? await prisma.notification.count({
         where: {
-          published: true,
-          pinned: true,
-          category: { in: ["rh", "urgent", "general"] },
+          read: false,
+          AND: [
+            {
+              OR: [
+                { creatorId: null },
+                { creatorId: { not: session.id } },
+              ],
+            },
+            {
+              OR: [
+                { userId: session.id },
+                { userId: null },
+              ],
+            },
+          ],
+          NOT: {
+            recipients: {
+              some: {
+                userId: session.id,
+                OR: [{ read: true }, { deleted: true }],
+              },
+            },
+          },
         },
       })
     : 0;

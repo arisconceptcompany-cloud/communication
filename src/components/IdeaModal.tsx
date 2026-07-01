@@ -150,6 +150,9 @@ export function IdeaBoxWidget() {
                   maxLength={150}
                   placeholder="Résumez votre idée en quelques mots…"
                 />
+                <small style={{ color: title.trim().length >= 3 ? "var(--text-muted)" : "var(--orange)", opacity: title.length === 0 ? 0.5 : 1 }}>
+                  {title.length}/3 caractères minimum
+                </small>
               </label>
 
               <label className="form-group">
@@ -162,6 +165,9 @@ export function IdeaBoxWidget() {
                   rows={5}
                   placeholder="Décrivez votre suggestion…"
                 />
+                <small style={{ color: body.trim().length >= 10 ? "var(--text-muted)" : "var(--orange)", opacity: body.length === 0 ? 0.5 : 1 }}>
+                  {body.length}/10 caractères minimum
+                </small>
               </label>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>

@@ -277,11 +277,28 @@ model Notification {
   title     String
   body      String?
   link      String?
-  read      Boolean  @default(false)
+  read      Boolean  @default(false) // fallback si pas de NotificationRecipient
   createdAt DateTime @default(now())
+
+  recipients NotificationRecipient[]
 
   @@index([userId, read])
   @@index([createdAt])
+}
+
+model NotificationRecipient {
+  id             String       @id @default(cuid())
+  notificationId String
+  userId         String
+  read           Boolean      @default(false)
+  deleted        Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
+  @@index([userId])
+  @@index([notificationId])
 }
 
 model AppSetting {
