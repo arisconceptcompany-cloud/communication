@@ -158,6 +158,7 @@ a:hover { @apply underline; }
   .fb-quick-links a { @apply p-[0.4rem_0.5rem] rounded-[var(--radius-sm)] text-[var(--text)] no-underline text-[0.9rem]; }
   .fb-quick-links a:hover { @apply bg-[var(--bg)] no-underline; }
   .fb-doc-list { @apply m-0 pl-[1.1rem] text-[0.9rem]; }
+  .fb-doc-link { @apply bg-transparent border-none p-0 cursor-pointer text-[0.9rem] text-[var(--navy)] hover:text-[var(--orange)] transition-colors; font-family: inherit; text-align: left; }
   .fb-rh-notice { @apply text-center text-[var(--text-muted)] text-[0.95rem]; }
 
   /* Top bar corporate */
@@ -211,7 +212,8 @@ a:hover { @apply underline; }
 
   /* Organigramme */
   .org-toolbar { @apply flex items-center gap-2 mb-4 flex-wrap; }
-  .org-tree { @apply flex flex-col; }
+  .org-tree { @apply flex flex-col; overflow-x: auto; }
+  .org-tree-inner { @apply flex flex-col; width: max-content; min-width: 100%; }
   .org-department { @apply mb-6; }
   .org-branch { @apply flex flex-col items-center; }
   .org-branch.has-children > .org-node > .org-node-card-wrap { position: relative; }
@@ -238,7 +240,7 @@ a:hover { @apply underline; }
   .org-node-add { @apply inline-flex items-center gap-1.5 text-[0.75rem] px-3 py-1.5 rounded-lg border border-dashed border-[var(--border)] bg-transparent cursor-pointer text-[var(--text-muted)] hover:border-[var(--orange)] hover:text-[var(--orange)] hover:bg-[var(--orange-muted)] transition-colors; font-family: inherit; }
   .org-toggle-btn { @apply absolute -top-2.5 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center w-5 h-5 rounded-full border border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-muted)] cursor-pointer hover:border-[var(--orange)] hover:text-[var(--orange)] hover:bg-[var(--orange-muted)] transition-colors; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
   .org-toggle-collapsed { @apply inline-flex items-center gap-1 text-[0.8rem] text-[var(--text-muted)] bg-transparent border-none cursor-pointer mt-1 hover:text-[var(--orange)] transition-colors; font-family: inherit; }
-  .org-children { @apply flex flex-wrap gap-4 justify-center relative transition-colors; }
+  .org-children { @apply flex flex-nowrap gap-4 justify-center relative transition-colors; }
   .org-children--drop { @apply bg-[var(--orange-muted)] rounded-xl py-2; }
   .org-children::before { content: ''; position: absolute; top: -0.5rem; left: 10%; width: 80%; height: 2px; background: var(--border); }
   .org-children > .org-node::before { content: ''; position: absolute; top: -1rem; left: 50%; width: 2px; height: 1rem; background: var(--border); transform: translateX(-50%); }
@@ -292,7 +294,19 @@ a:hover { @apply underline; }
   .hub-doc-item:last-child { @apply border-b-0; }
   .hub-doc-item a { @apply text-[var(--navy)] no-underline font-semibold; }
   .hub-doc-item a:hover { @apply text-[var(--orange)]; }
+  .hub-doc-link { @apply bg-transparent border-none p-0 text-left cursor-pointer text-[1rem] font-semibold text-[var(--navy)] hover:text-[var(--orange)] transition-colors; font-family: inherit; }
   .hub-grid { @apply w-full; }
+  .contacts-modal { width: min(560px, 100%); }
+  .contacts-modal-header { @apply flex items-center justify-between gap-2 mb-2; }
+  .contacts-modal-header h3 { @apply m-0; }
+  .contacts-list { @apply list-none m-0 p-0 flex flex-col gap-3; }
+  .contact-card { @apply flex flex-wrap items-center justify-between gap-3 p-4 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--bg)]; }
+  .contact-info { @apply flex flex-col gap-[0.15rem] flex-1 min-w-[13rem]; }
+  .contact-name { @apply text-[0.95rem] text-[var(--navy)]; }
+  .contact-role { @apply text-[0.82rem] text-[var(--text-muted)]; }
+  .contact-detail { @apply text-[0.82rem] text-[var(--text)]; }
+  .contact-actions { @apply flex gap-2 flex-wrap; }
+  .contact-action { @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg-card)] text-[0.82rem] font-semibold text-[var(--navy)] no-underline hover:border-[var(--orange)] hover:text-[var(--orange)] hover:bg-[var(--orange-muted)] transition-colors; }
 
   /* Settings */
   .settings-page {

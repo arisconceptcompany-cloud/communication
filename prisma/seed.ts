@@ -69,57 +69,134 @@ async function main() {
   if (existingOrg === 0) {
     const direction = await prisma.orgNode.create({
       data: {
-        name: "Direction Générale",
-        title: "Direction",
+        name: "DIRECTION",
+        title: "Direction Générale",
         department: "Direction",
         sortOrder: 0,
       },
     });
 
-    const rh = await prisma.orgNode.create({
+    const admin = await prisma.orgNode.create({
       data: {
-        name: "Ressources Humaines",
-        title: "Département RH",
-        department: "RH",
+        name: "ADMIN",
+        title: "Administration",
+        department: "Admin",
+        parentId: direction.id,
+        sortOrder: 0,
+      },
+    });
+
+    const engineering = await prisma.orgNode.create({
+      data: {
+        name: "Engineering",
+        title: "Engineering",
+        department: "Technique",
         parentId: direction.id,
         sortOrder: 1,
       },
     });
 
-    const ops = await prisma.orgNode.create({
+    const gtm = await prisma.orgNode.create({
       data: {
-        name: "Opérations & Data",
-        title: "Département Opérations",
-        department: "Opérations",
+        name: "GTM",
+        title: "Go-To-Market",
+        department: "Commercial",
         parentId: direction.id,
         sortOrder: 2,
+      },
+    });
+
+    const opsProd = await prisma.orgNode.create({
+      data: {
+        name: "OPS PROD",
+        title: "Opérations Production",
+        department: "Opérations",
+        parentId: direction.id,
+        sortOrder: 3,
+      },
+    });
+
+    const opsTech = await prisma.orgNode.create({
+      data: {
+        name: "OPS TECH",
+        title: "Opérations Technique",
+        department: "Technique",
+        parentId: direction.id,
+        sortOrder: 4,
       },
     });
 
     await prisma.orgNode.createMany({
       data: [
         {
-          name: "Responsable RH",
-          title: "Manager RH",
-          email: "rh@value-it.mg",
+          name: "RH",
+          title: "Ressources Humaines",
           department: "RH",
-          parentId: rh.id,
+          parentId: admin.id,
           sortOrder: 0,
         },
         {
-          name: "Chef d'équipe Data",
-          title: "Team Lead",
-          email: "data@value-it.mg",
-          department: "Opérations",
-          parentId: ops.id,
-          sortOrder: 0,
-        },
-        {
-          name: "Analystes Prix",
-          title: "Équipe",
-          department: "Opérations",
-          parentId: ops.id,
+          name: "Logitsique",
+          title: "Logistique",
+          department: "Admin",
+          parentId: admin.id,
           sortOrder: 1,
+        },
+        {
+          name: "Maintenance",
+          title: "Maintenance",
+          department: "Admin",
+          parentId: admin.id,
+          sortOrder: 2,
+        },
+        {
+          name: "Recherches & développement",
+          title: "Recherches & développement",
+          department: "Technique",
+          parentId: engineering.id,
+          sortOrder: 0,
+        },
+        {
+          name: "Support client - ticketing",
+          title: "Support client - ticketing",
+          department: "Commercial",
+          parentId: gtm.id,
+          sortOrder: 0,
+        },
+        {
+          name: "ASSCP",
+          title: "ASSCP",
+          department: "Opérations",
+          parentId: opsProd.id,
+          sortOrder: 0,
+        },
+        {
+          name: "Matching/CQ",
+          title: "Matching / CQ",
+          department: "Opérations",
+          parentId: opsProd.id,
+          sortOrder: 1,
+        },
+        {
+          name: "Monitoring",
+          title: "Monitoring",
+          department: "Technique",
+          parentId: opsTech.id,
+          sortOrder: 0,
+        },
+        {
+          name: "BPO/QC",
+          title: "BPO / QC",
+          department: "Technique",
+          parentId: opsTech.id,
+          sortOrder: 1,
+        },
+        {
+          name: "Développement",
+          title: "Développement",
+          department: "Technique",
+          parentId: opsTech.id,
+          sortOrder: 2,
         },
       ],
     });
@@ -132,7 +209,7 @@ async function main() {
         {
           title: "Charte interne Value-IT",
           description: "Règlement intérieur et valeurs d'entreprise",
-          url: "https://betav3-valueit.aris-cc.com/about/",
+          url: "/doc/DRH_REGLEMENT%20INTERIEUR%20VIT%202015.pdf",
           category: "document",
           sortOrder: 0,
         },
@@ -157,14 +234,14 @@ async function main() {
   await ensureHubDoc({
     title: "Guide paie & bulletins",
     description: "Accès aux bulletins et calendrier de paie",
-    url: "/rh",
+    url: "/doc/Comprendre%20son%20bulletin%20de%20paie.pdf",
     category: "paie",
     sortOrder: 0,
   });
   await ensureHubDoc({
     title: "Mutuelle entreprise",
     description: "Adhésion, remboursements et contacts mutuelle",
-    url: "/rh",
+    url: "/doc/MUTUELLE%20ENTREPRISE.pdf",
     category: "mutuelle",
     sortOrder: 1,
   });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Pencil, Trash2, Plus, X, Save, UserPlus, Move, ChevronDown, ChevronRight } from "lucide-react";
 
 export type OrgNode = {
@@ -223,6 +223,20 @@ export function OrgChart({ nodes: initialNodes, canEdit = false }: { nodes: OrgN
   nodesRef.current = nodes;
   const canEditRef = useRef(canEdit);
   canEditRef.current = canEdit;
+  const treeRef = useRef<HTMLDivElement>(null);
+  const treeInnerRef = useRef<HTMLDivElement>(null);
+
+  const fitToWidth = useCallback(() => {
+    const el = treeRef.current;
+    const inner = treeInnerRef.current;
+    if (!el || !inner) return;
+    const avail = el.clientWidth;
+    if (avail <= 0) return;
+    inner.style.zoom = "1";
+    const content = inner.scrollWidth;
+    const scale = content > 0 ? Math.min(1, avail / content) : 1;
+    inner.style.zoom = String(scale);
+  }, []);
   const [selected, setSelected] = useState<OrgNode | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -257,6 +271,37 @@ export function OrgChart({ nodes: initialNodes, canEdit = false }: { nodes: OrgN
       }
     } catch { addToast("error", "Erreur lors du rafraîchissement"); }
   }, [addToast]);
+
+  useEffect(() => {
+    fitToWidth();
+    const t1 = setTimeout(fitToWidth, 100);
+    const t2 = setTimeout(fitToWidth, 600);
+    if (typeof document !== "undefined" && document.fonts?.ready) {
+      document.fonts.ready.then(() => fitToWidth()).catch(() => {});
+    }
+    const el = treeRef.current;
+    if (!el) {
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }
+    let lastW = -1;
+    let raf = 0;
+    const ro = new ResizeObserver((entries) => {
+      const w = Math.round(entries[0].contentRect.width);
+      if (w === lastW) return;
+      lastW = w;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(fitToWidth);
+    });
+    ro.observe(el);
+    window.addEventListener("resize", fitToWidth);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      ro.disconnect();
+      window.removeEventListener("resize", fitToWidth);
+      cancelAnimationFrame(raf);
+    };
+  }, [fitToWidth, nodes, expandedNodes]);
 
   function toggleExpand(id: string) {
     setExpandedNodes((prev) => {
@@ -458,22 +503,24 @@ export function OrgChart({ nodes: initialNodes, canEdit = false }: { nodes: OrgN
         </button>
       </div>
 
-      <div className="org-tree" onDragOver={(e) => { if (canEdit && editMode) { e.preventDefault(); e.stopPropagation(); } }} onDrop={async (e) => { if (!dragNodeId || !editMode) return; e.preventDefault(); e.stopPropagation(); drag.onDrop(dragNodeId); }}>
-        {nodes.map((dept) => (
-          <section key={dept.id} className="org-department">
-            <OrgSubTree
-              node={dept}
-              onSelect={setSelected}
-              canEdit={editMode}
-              onEdit={openEdit}
-              onDelete={confirmDelete}
-              onAddMember={openAdd}
-              drag={canEdit && editMode ? drag : undefined}
-              isExpanded={expandedNodes.has(dept.id)}
-              onToggle={toggleExpand}
-            />
-          </section>
-        ))}
+      <div className="org-tree" ref={treeRef} onDragOver={(e) => { if (canEdit && editMode) { e.preventDefault(); e.stopPropagation(); } }} onDrop={async (e) => { if (!dragNodeId || !editMode) return; e.preventDefault(); e.stopPropagation(); drag.onDrop(dragNodeId); }}>
+        <div className="org-tree-inner" ref={treeInnerRef}>
+          {nodes.map((dept) => (
+            <section key={dept.id} className="org-department">
+              <OrgSubTree
+                node={dept}
+                onSelect={setSelected}
+                canEdit={editMode}
+                onEdit={openEdit}
+                onDelete={confirmDelete}
+                onAddMember={openAdd}
+                drag={canEdit && editMode ? drag : undefined}
+                isExpanded={expandedNodes.has(dept.id)}
+                onToggle={toggleExpand}
+              />
+            </section>
+          ))}
+        </div>
       </div>
 
       {selected && (

@@ -78,12 +78,22 @@ export function MessengerChat({
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [emojiPickerMsgId, setEmojiPickerMsgId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ChatMessage | null>(null);
-  const hiddenForMe = useRef<Set<string>>(new Set(JSON.parse(localStorage.getItem("valueit_hidden_msgs") || "[]")));
+  const hiddenForMe = useRef<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
   const { maximized, toggleMaximized } = useMessenger();
   const inputRef = useRef<HTMLInputElement>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const readSent = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("valueit_hidden_msgs");
+      if (stored) {
+        const parsed = JSON.parse(stored) as string[];
+        if (Array.isArray(parsed)) hiddenForMe.current = new Set(parsed);
+      }
+    } catch {}
+  }, []);
 
   const load = useCallback(async () => {
     if (!identity) return;

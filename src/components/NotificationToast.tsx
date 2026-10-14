@@ -57,29 +57,23 @@ export function NotificationToast() {
     };
   }, [fetchNotifications]);
 
-  useEffect(() => {
-    if (toasts.length === 0) return;
-    const timer = setTimeout(() => {
-      setToasts((prev) => {
-        if (prev.length === 0) return prev;
-        const [oldest, ...rest] = prev;
-        fetch("/api/notifications/read", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ids: [oldest.id] }),
-        }).catch(() => {});
-        return rest;
-      });
-    }, 6000);
-    return () => clearTimeout(timer);
-  }, [toasts]);
-
-  function dismissToast(id: string) {
+  function removeToast(id: string) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
+  }
+
+  function markRead(id: string) {
+    const payload = JSON.stringify({ ids: [id] });
+    if (typeof navigator !== "undefined" && navigator.sendBeacon) {
+      navigator.sendBeacon(
+        "/api/notifications/read",
+        new Blob([payload], { type: "application/json" })
+      );
+      return;
+    }
     fetch("/api/notifications/read", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ids: [id] }),
+      body: payload,
     }).catch(() => {});
   }
 
@@ -103,7 +97,10 @@ export function NotificationToast() {
               <a
                 href={toast.link ?? "#"}
                 className="toast-content"
-                onClick={() => dismissToast(toast.id)}
+                onClick={() => {
+                  markRead(toast.id);
+                  removeToast(toast.id);
+                }}
               >
                 <span className="toast-icon">
                   <Icon size={18} />
@@ -115,7 +112,7 @@ export function NotificationToast() {
               </a>
               <button
                 className="toast-close"
-                onClick={() => dismissToast(toast.id)}
+                onClick={() => removeToast(toast.id)}
                 aria-label="Fermer"
               >
                 <X size={14} />

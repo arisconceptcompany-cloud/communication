@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth";
 import { getTodayBirthdays } from "@/lib/birthdays";
 import { prisma } from "@/lib/prisma";
 import { IdeaBoxWidget } from "@/components/IdeaModal";
+import { ContactsButton } from "@/components/ContactsButton";
+import { isContactsDoc } from "@/lib/contacts";
 import { PostAvatar } from "./PostAvatar";
 import { FolderOpen, Megaphone, Users, BarChart2, Cake } from "lucide-react";
 
@@ -50,21 +52,29 @@ export async function FeedLeftRail() {
         <section className="feed-card fb-widget">
           <h3>Procédures & chartes</h3>
           <ul className="fb-doc-list">
-            {documents.map((doc) => (
-              <li key={doc.id}>
-                {doc.url ? (
-                  <a
-                    href={doc.url}
-                    target={doc.url.startsWith("http") ? "_blank" : undefined}
-                    rel={doc.url.startsWith("http") ? "noopener noreferrer" : undefined}
-                  >
-                    {doc.title}
-                  </a>
-                ) : (
-                  <Link href="/hub">{doc.title}</Link>
-                )}
-              </li>
-            ))}
+            {documents.map((doc) => {
+              const isPdf = doc.url ? /\.pdf$/i.test(doc.url) : false;
+              return (
+                <li key={doc.id}>
+                  {isContactsDoc(doc.title) ? (
+                    <ContactsButton className="fb-doc-link">
+                      {doc.title}
+                    </ContactsButton>
+                  ) : doc.url ? (
+                    <a
+                      href={doc.url}
+                      target={doc.url.startsWith("http") ? "_blank" : undefined}
+                      rel={doc.url.startsWith("http") ? "noopener noreferrer" : undefined}
+                      download={isPdf ? "" : undefined}
+                    >
+                      {doc.title}
+                    </a>
+                  ) : (
+                    <Link href="/hub">{doc.title}</Link>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}

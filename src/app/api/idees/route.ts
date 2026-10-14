@@ -38,20 +38,23 @@ export async function POST(request: Request) {
     );
   }
 
-  // 4. Notification pour les administrateurs
+  // 4. Notification pour les administrateurs et l'équipe RH
   try {
-    const admins = await prisma.user.findMany({
-      where: { role: "ADMIN" },
+    const recipients = await prisma.user.findMany({
+      where: { role: { in: ["ADMIN", "RH"] } },
       select: { id: true },
     });
-    await prisma.notification.create({
-      data: {
-        type: "idea",
-        title: `Nouvelle idée : ${parsed.data.title}`,
-        body: `Catégorie : ${parsed.data.category}`,
-        link: "/idees",
-      },
-    });
+    if (recipients.length > 0) {
+      await prisma.notification.createMany({
+        data: recipients.map((u) => ({
+          userId: u.id,
+          type: "idea",
+          title: `Nouvelle idée : ${parsed.data.title}`,
+          body: `Catégorie : ${parsed.data.category}`,
+          link: "/idees",
+        })),
+      });
+    }
   } catch (err) {
     console.warn("[IdeaBox] Erreur notification (non bloquant) :", err);
   }
