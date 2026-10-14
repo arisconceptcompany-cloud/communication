@@ -9,21 +9,6 @@ function todayBirthYear(year: number) {
   return d;
 }
 
-async function ensureHubDoc(data: {
-  title: string;
-  description?: string;
-  url?: string;
-  category: string;
-  sortOrder: number;
-}) {
-  const existing = await prisma.hubDocument.findFirst({
-    where: { title: data.title },
-  });
-  if (!existing) {
-    await prisma.hubDocument.create({ data });
-  }
-}
-
 async function main() {
   const passwordHash = await bcrypt.hash("ValueIT2026!", 12);
   const employeBirth = todayBirthYear(1992);
@@ -202,56 +187,78 @@ async function main() {
     });
   }
 
-  const hubCount = await prisma.hubDocument.count();
-  if (hubCount === 0) {
-    await prisma.hubDocument.createMany({
-      data: [
-        {
-          title: "Charte interne Value-IT",
-          description: "Règlement intérieur et valeurs d'entreprise",
-          url: "/doc/DRH_REGLEMENT%20INTERIEUR%20VIT%202015.pdf",
-          category: "document",
-          sortOrder: 0,
-        },
-        {
-          title: "Procédures qualité",
-          description: "Processus SOC 2 et bonnes pratiques",
-          url: "/rh",
-          category: "document",
-          sortOrder: 1,
-        },
-        {
-          title: "Contacts utiles",
-          description: "Support IT, RH et direction — contact@value-it.mg",
-          url: "mailto:contact@value-it.mg",
-          category: "ressource",
-          sortOrder: 2,
-        },
-      ],
+  // Documents du Hub : le seed est la source de vérité.
+  // Synchronisation idempotente : les documents existants (même titre) sont
+  // mis à jour (URL incluse) et les documents obsolètes sont supprimés, afin
+  // qu'un simple re-seed aligne la base (serveur) sur le dépôt.
+  const hubDocuments = [
+    {
+      title: "Charte interne Value-IT",
+      description: "Règlement intérieur et valeurs d'entreprise",
+      url: "/doc/DRH_REGLEMENT%20INTERIEUR%20VIT%202015.pdf",
+      category: "document",
+      sortOrder: 0,
+    },
+    {
+      title: "Guide paie & bulletins",
+      description: "Accès aux bulletins et calendrier de paie",
+      url: "/doc/Comprendre%20son%20bulletin%20de%20paie.pdf",
+      category: "paie",
+      sortOrder: 0,
+    },
+    {
+      title: "Mutuelle entreprise",
+      description: "Adhésion, remboursements et contacts mutuelle",
+      url: "/doc/MUTUELLE%20ENTREPRISE.pdf",
+      category: "mutuelle",
+      sortOrder: 1,
+    },
+    {
+      title: "Procédures qualité",
+      description: "Processus SOC 2 et bonnes pratiques",
+      url: "/rh",
+      category: "document",
+      sortOrder: 1,
+    },
+    {
+      title: "Contacts utiles",
+      description: "Support IT, RH et direction — contact@value-it.mg",
+      url: "mailto:contact@value-it.mg",
+      category: "ressource",
+      sortOrder: 2,
+    },
+    {
+      title: "Planning & congés",
+      description: "Demandes de congés et planning d'équipe",
+      url: "/rh",
+      category: "planning",
+      sortOrder: 2,
+    },
+  ];
+
+  const wantedHubTitles = new Set(hubDocuments.map((d) => d.title));
+  const existingHubDocs = await prisma.hubDocument.findMany({
+    select: { id: true, title: true },
+  });
+  const obsoleteHubIds = existingHubDocs
+    .filter((d) => !wantedHubTitles.has(d.title))
+    .map((d) => d.id);
+  if (obsoleteHubIds.length > 0) {
+    await prisma.hubDocument.deleteMany({
+      where: { id: { in: obsoleteHubIds } },
     });
   }
-
-  await ensureHubDoc({
-    title: "Guide paie & bulletins",
-    description: "Accès aux bulletins et calendrier de paie",
-    url: "/doc/Comprendre%20son%20bulletin%20de%20paie.pdf",
-    category: "paie",
-    sortOrder: 0,
-  });
-  await ensureHubDoc({
-    title: "Mutuelle entreprise",
-    description: "Adhésion, remboursements et contacts mutuelle",
-    url: "/doc/MUTUELLE%20ENTREPRISE.pdf",
-    category: "mutuelle",
-    sortOrder: 1,
-  });
-  await ensureHubDoc({
-    title: "Planning & congés",
-    description: "Demandes de congés et planning d'équipe",
-    url: "/rh",
-    category: "planning",
-    sortOrder: 2,
-  });
+  for (const doc of hubDocuments) {
+    const existing = existingHubDocs.find((d) => d.title === doc.title);
+    if (existing) {
+      await prisma.hubDocument.update({
+        where: { id: existing.id },
+        data: doc,
+      });
+    } else {
+      await prisma.hubDocument.create({ data: doc });
+    }
+  }
 
   const michael = await prisma.user.upsert({
     where: { email: "michael@value-it.mg" },
