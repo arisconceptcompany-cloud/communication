@@ -50,141 +50,75 @@ async function main() {
     },
   });
 
-  const existingOrg = await prisma.orgNode.count();
-  if (existingOrg === 0) {
-    const direction = await prisma.orgNode.create({
-      data: {
-        name: "DIRECTION",
-        title: "Direction Générale",
-        department: "Direction",
-        sortOrder: 0,
-      },
-    });
+  // Organigramme : le seed est la source de vérité (structure issue du PDF).
+  // Synchronisation idempotente par `name` : les nœuds existants sont mis à
+  // jour (titre, département, parent, ordre), les nouveaux créés et les
+  // anciens (issus d'une version précédente du seed) supprimés. Un simple
+  // re-seed aligne donc la base sur le dépôt. L'ordre parent-avant-enfant est
+  // important pour résoudre les `parentId`.
+  const orgNodes: Array<{
+    name: string;
+    title: string;
+    department: string;
+    parentName: string | null;
+    sortOrder: number;
+  }> = [
+    { name: "DIRECTION", title: "Direction Générale", department: "Direction", parentName: null, sortOrder: 0 },
+    { name: "ADMIN", title: "Administration", department: "Admin", parentName: "DIRECTION", sortOrder: 0 },
+    { name: "Engineering", title: "Engineering", department: "Technique", parentName: "DIRECTION", sortOrder: 1 },
+    { name: "GTM", title: "Go-To-Market", department: "Commercial", parentName: "DIRECTION", sortOrder: 2 },
+    { name: "OPS PROD", title: "Opérations Production", department: "Opérations", parentName: "DIRECTION", sortOrder: 3 },
+    { name: "OPS TECH", title: "Opérations Technique", department: "Technique", parentName: "DIRECTION", sortOrder: 4 },
+    { name: "RH", title: "Ressources Humaines", department: "RH", parentName: "ADMIN", sortOrder: 0 },
+    { name: "Logitsique", title: "Logistique", department: "Admin", parentName: "ADMIN", sortOrder: 1 },
+    { name: "Maintenance", title: "Maintenance", department: "Admin", parentName: "ADMIN", sortOrder: 2 },
+    { name: "Recherches & développement", title: "Recherches & développement", department: "Technique", parentName: "Engineering", sortOrder: 0 },
+    { name: "Support client - ticketing", title: "Support client - ticketing", department: "Commercial", parentName: "GTM", sortOrder: 0 },
+    { name: "ASSCP", title: "ASSCP", department: "Opérations", parentName: "OPS PROD", sortOrder: 0 },
+    { name: "Matching/CQ", title: "Matching / CQ", department: "Opérations", parentName: "OPS PROD", sortOrder: 1 },
+    { name: "Monitoring", title: "Monitoring", department: "Technique", parentName: "OPS TECH", sortOrder: 0 },
+    { name: "BPO/QC", title: "BPO / QC", department: "Technique", parentName: "OPS TECH", sortOrder: 1 },
+    { name: "Développement", title: "Développement", department: "Technique", parentName: "OPS TECH", sortOrder: 2 },
+  ];
 
-    const admin = await prisma.orgNode.create({
-      data: {
-        name: "ADMIN",
-        title: "Administration",
-        department: "Admin",
-        parentId: direction.id,
-        sortOrder: 0,
-      },
-    });
+  const canonicalOrgNames = new Set(orgNodes.map((n) => n.name));
+  const existingOrgNodes = await prisma.orgNode.findMany({
+    select: { id: true, name: true },
+  });
 
-    const engineering = await prisma.orgNode.create({
-      data: {
-        name: "Engineering",
-        title: "Engineering",
-        department: "Technique",
-        parentId: direction.id,
-        sortOrder: 1,
-      },
-    });
+  const seenOrgNames = new Set<string>();
+  const obsoleteOrgIds: string[] = [];
+  const orgIdByName = new Map<string, string>();
+  for (const n of existingOrgNodes) {
+    if (!canonicalOrgNames.has(n.name) || seenOrgNames.has(n.name)) {
+      obsoleteOrgIds.push(n.id);
+    } else {
+      seenOrgNames.add(n.name);
+      orgIdByName.set(n.name, n.id);
+    }
+  }
+  if (obsoleteOrgIds.length > 0) {
+    await prisma.orgNode.deleteMany({ where: { id: { in: obsoleteOrgIds } } });
+  }
 
-    const gtm = await prisma.orgNode.create({
-      data: {
-        name: "GTM",
-        title: "Go-To-Market",
-        department: "Commercial",
-        parentId: direction.id,
-        sortOrder: 2,
-      },
-    });
-
-    const opsProd = await prisma.orgNode.create({
-      data: {
-        name: "OPS PROD",
-        title: "Opérations Production",
-        department: "Opérations",
-        parentId: direction.id,
-        sortOrder: 3,
-      },
-    });
-
-    const opsTech = await prisma.orgNode.create({
-      data: {
-        name: "OPS TECH",
-        title: "Opérations Technique",
-        department: "Technique",
-        parentId: direction.id,
-        sortOrder: 4,
-      },
-    });
-
-    await prisma.orgNode.createMany({
-      data: [
-        {
-          name: "RH",
-          title: "Ressources Humaines",
-          department: "RH",
-          parentId: admin.id,
-          sortOrder: 0,
-        },
-        {
-          name: "Logitsique",
-          title: "Logistique",
-          department: "Admin",
-          parentId: admin.id,
-          sortOrder: 1,
-        },
-        {
-          name: "Maintenance",
-          title: "Maintenance",
-          department: "Admin",
-          parentId: admin.id,
-          sortOrder: 2,
-        },
-        {
-          name: "Recherches & développement",
-          title: "Recherches & développement",
-          department: "Technique",
-          parentId: engineering.id,
-          sortOrder: 0,
-        },
-        {
-          name: "Support client - ticketing",
-          title: "Support client - ticketing",
-          department: "Commercial",
-          parentId: gtm.id,
-          sortOrder: 0,
-        },
-        {
-          name: "ASSCP",
-          title: "ASSCP",
-          department: "Opérations",
-          parentId: opsProd.id,
-          sortOrder: 0,
-        },
-        {
-          name: "Matching/CQ",
-          title: "Matching / CQ",
-          department: "Opérations",
-          parentId: opsProd.id,
-          sortOrder: 1,
-        },
-        {
-          name: "Monitoring",
-          title: "Monitoring",
-          department: "Technique",
-          parentId: opsTech.id,
-          sortOrder: 0,
-        },
-        {
-          name: "BPO/QC",
-          title: "BPO / QC",
-          department: "Technique",
-          parentId: opsTech.id,
-          sortOrder: 1,
-        },
-        {
-          name: "Développement",
-          title: "Développement",
-          department: "Technique",
-          parentId: opsTech.id,
-          sortOrder: 2,
-        },
-      ],
-    });
+  for (const node of orgNodes) {
+    const parentId = node.parentName
+      ? orgIdByName.get(node.parentName) ?? null
+      : null;
+    const data = {
+      name: node.name,
+      title: node.title,
+      department: node.department,
+      parentId,
+      sortOrder: node.sortOrder,
+    };
+    const existingId = orgIdByName.get(node.name);
+    if (existingId) {
+      await prisma.orgNode.update({ where: { id: existingId }, data });
+    } else {
+      const created = await prisma.orgNode.create({ data });
+      orgIdByName.set(node.name, created.id);
+    }
   }
 
   // Documents du Hub : le seed est la source de vérité.
