@@ -1,6 +1,7 @@
 import { getSession, isRhOrAdmin } from "@/lib/auth";
 import { getFeedPosts } from "@/lib/feed";
 import { FeedLeftRail } from "./FeedLeftRail";
+import { HomeHeroBanner } from "./HomeHeroBanner";
 import { PostCard } from "./PostCard";
 import { PostComposer } from "./PostComposer";
 
@@ -63,6 +64,8 @@ export async function FeedPage({
 
   return (
     <>
+      {layout === "home" && <HomeHeroBanner />}
+
       <header className="feed-page-header">
         <h1>{title}</h1>
         <p>{subtitle}</p>

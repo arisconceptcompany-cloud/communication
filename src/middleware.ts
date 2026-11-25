@@ -40,6 +40,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/logo") ||
     pathname.startsWith("/uploads") ||
+    pathname.startsWith("/api/uploads") ||
+    pathname.startsWith("/sary") ||
     pathname.startsWith("/doc") ||
     pathname.startsWith("/api/auth")
   ) {
