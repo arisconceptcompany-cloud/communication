@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { LocalDateTime } from "@/components/LocalDateTime";
 
 type Submission = {
   id: string;
@@ -64,7 +65,7 @@ export function RhInbox({ submissions }: { submissions: Submission[] }) {
           </div>
           <p className="announcement-meta">
             {s.submitter?.name || "Anonyme"} · {s.category} · {s.priority} ·{" "}
-            {new Date(s.createdAt).toLocaleString("fr-FR")}
+            <LocalDateTime iso={s.createdAt} />
           </p>
           {s.attachments && (
             <p className="rh-inbox-attachments">

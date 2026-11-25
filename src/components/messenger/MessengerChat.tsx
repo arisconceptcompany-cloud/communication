@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { LocalDayLabel, LocalTime } from "@/components/LocalDateTime";
 import {
   Paperclip, Image as ImageIcon, Smile, Mic, Send,
   Minimize2, Maximize2, X, Settings, Lock, Flag,
@@ -52,13 +53,6 @@ const COLOR_MAP: Record<string, string> = {
   Indigo: "#6366F1",
   Menthe: "#14B8A6",
 };
-
-function formatDayLabel(iso: string) {
-  return new Intl.DateTimeFormat("fr-FR", {
-    weekday: "long", day: "numeric", month: "long",
-    hour: "2-digit", minute: "2-digit",
-  }).format(new Date(iso));
-}
 
 export function MessengerChat({
   variant = "sidebar",
@@ -372,7 +366,7 @@ export function MessengerChat({
           if (isDeleted) {
             return (
               <div key={m.id} className="messenger-msg-row">
-                {showDay && <p className="messenger-day-sep">{formatDayLabel(m.createdAt)}</p>}
+                {showDay && <p className="messenger-day-sep"><LocalDayLabel iso={m.createdAt} /></p>}
                 <article className="messenger-bubble-wrap messenger-msg-deleted">
                   <p className="messenger-bubble-author">
                     <span className="avatar-badge avatar-badge--sm" style={{ background: "#6B7280" }}>
@@ -387,7 +381,7 @@ export function MessengerChat({
                   </div>
                   <div className="messenger-bubble-meta">
                     <time dateTime={m.createdAt}>
-                      {new Date(m.createdAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                      <LocalTime iso={m.createdAt} />
                     </time>
                   </div>
                 </article>
@@ -400,7 +394,7 @@ export function MessengerChat({
               key={m.id}
               className={isMine ? "messenger-msg-row messenger-msg-row--mine" : "messenger-msg-row"}
             >
-              {showDay && <p className="messenger-day-sep">{formatDayLabel(m.createdAt)}</p>}
+              {showDay && <p className="messenger-day-sep"><LocalDayLabel iso={m.createdAt} /></p>}
 
               <article
                 className={`messenger-bubble-wrap ${isMine ? "messenger-bubble-wrap--mine" : ""}`}
@@ -446,7 +440,7 @@ export function MessengerChat({
 
                 <div className="messenger-bubble-meta">
                   <time dateTime={m.createdAt}>
-                    {new Date(m.createdAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                    <LocalTime iso={m.createdAt} />
                   </time>
                   {isMine && m.readCount > 0 && (
                     <span className="messenger-read-receipt">

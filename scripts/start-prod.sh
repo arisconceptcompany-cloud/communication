@@ -12,6 +12,11 @@ mkdir -p data public/uploads/chat public/uploads/comments
 mkdir -p .next/standalone/public
 cp -r public/* .next/standalone/public/
 
+# Les uploads écrits à l'exécution doivent rester dans public/uploads du projet,
+# pas dans .next/standalone (écrasé à chaque build).
+rm -rf .next/standalone/public/uploads
+ln -s ../../../public/uploads .next/standalone/public/uploads
+
 mkdir -p .next/standalone/.next
 cp -r .next/static .next/standalone/.next/static
 

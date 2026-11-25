@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import type { Role } from "@prisma/client";
 import type { FeedComment } from "@/lib/feed";
 import { getAnonymousIdentity } from "@/lib/anonymous-identity";
-import { timeAgo } from "@/lib/time-ago";
 import { commentFileIcon } from "@/lib/comment-attachments";
+import { TimeAgo } from "@/components/TimeAgo";
 import { PostAvatar } from "./PostAvatar";
 import {
   CommentAttachmentPicker,
@@ -165,7 +165,7 @@ function CommentNode({
               Supprimer
             </button>
           )}
-          <time dateTime={comment.createdAt}>{timeAgo(comment.createdAt)}</time>
+          <TimeAgo iso={comment.createdAt} />
         </div>
         {replying && (
           <form className="post-comment-reply-form" onSubmit={submitReply}>

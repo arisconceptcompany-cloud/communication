@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 import type { FeedComment, FeedPost } from "@/lib/feed";
 import { isRhOrAdmin } from "@/lib/roles";
 import { REACTION_TYPES, reactionEmoji } from "@/lib/reactions";
-import { timeAgo } from "@/lib/time-ago";
 import type { Role } from "@prisma/client";
+import { TimeAgo } from "@/components/TimeAgo";
+import { LocalDateTime } from "@/components/LocalDateTime";
 import { PostAvatar } from "./PostAvatar";
 import { TypologyBadge } from "./TypologyBadge";
 import { PostMediaGallery } from "./PostMediaGallery";
@@ -232,7 +233,7 @@ export function PostCard({ post, currentUser }: Props) {
             {post.author.role === "ADMIN" && (
               <span className="post-badge post-badge--admin">👑 Administrateur</span>
             )}
-            <span className="post-card-time"><CalendarDays size={18}/> {timeAgo(post.createdAt)}</span>
+            <span className="post-card-time"><CalendarDays size={18}/> <TimeAgo iso={post.createdAt} /></span>
 
           </div>
           {(post.taggedUsers.length > 0 || post.moodActivity) && (
@@ -447,8 +448,7 @@ export function PostCard({ post, currentUser }: Props) {
             {revisions.map((r, i) => (
               <article key={i} className="post-revision-item">
                 <p className="announcement-meta">
-                  {r.editorName} ·{" "}
-                  {new Date(r.createdAt).toLocaleString("fr-FR")}
+                  {r.editorName} · <LocalDateTime iso={r.createdAt} />
                 </p>
                 <strong>{r.title}</strong>
                 <p>{r.body}</p>

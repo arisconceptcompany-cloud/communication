@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FeedPoll } from "@/lib/feed";
 
 type Props = {
@@ -18,7 +18,15 @@ function daysLeft(expiresAt: string | null) {
 export function PostPollWidget({ postId, poll: initial }: Props) {
   const [poll, setPoll] = useState(initial);
   const [busy, setBusy] = useState(false);
-  const remaining = daysLeft(poll.expiresAt);
+  const [remaining, setRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    const update = () => setRemaining(daysLeft(poll.expiresAt));
+    update();
+    const timer = setInterval(update, 60_000);
+    return () => clearInterval(timer);
+  }, [poll.expiresAt]);
+
   const expired = remaining !== null && remaining <= 0;
 
   async function vote(optionId: string) {

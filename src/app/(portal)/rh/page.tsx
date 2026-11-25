@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { RhForm } from "@/components/RhForm";
 import { RhInbox } from "@/components/RhInbox";
+import { LocalDateTime } from "@/components/LocalDateTime";
 import { useState, useEffect } from "react";
 import { useSession } from "@/lib/client-auth";
 import { Trash2, Clock, Lightbulb, AlertTriangle } from "lucide-react";
@@ -216,7 +217,7 @@ export default function RhPage() {
                     <span className="rh-idea-category">{idea.category}</span>
                     <span className="rh-idea-date">
                       <Clock size={12} className="icon-inline" />
-                      {new Date(idea.createdAt).toLocaleString("fr-FR")}
+                      <LocalDateTime iso={idea.createdAt} />
                     </span>
                   </div>
                   <p className="rh-idea-text">{idea.body}</p>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { LocalDateTime } from "@/components/LocalDateTime";
 import { Megaphone, Lightbulb, MessageCircle, Trash2, CheckCheck } from "lucide-react";
 
 type NotificationItem = {
@@ -208,7 +209,7 @@ export function NotificationsList({ initial }: Props) {
                       </p>
                     )}
                     <p style={{ margin: "0.25rem 0 0", fontSize: "0.72rem", color: "var(--text-muted)" }}>
-                      {new Date(n.createdAt).toLocaleString("fr-FR")}
+                      <LocalDateTime iso={n.createdAt} />
                     </p>
                   </div>
                   <button

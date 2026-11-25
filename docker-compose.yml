@@ -10,7 +10,9 @@ services:
       SKIP_SEED: "false"
     volumes:
       - intranet_data:/app/data
+      - intranet_uploads:/app/public/uploads
     restart: unless-stopped
 
 volumes:
   intranet_data:
+  intranet_uploads:

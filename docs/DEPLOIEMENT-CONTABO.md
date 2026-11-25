@@ -40,6 +40,28 @@ docker compose up -d --build
 docker compose exec intranet npx tsx prisma/seed.ts
 ```
 
+> **Important :** les photos/fichiers joints sont stockés dans `public/uploads`.
+> Le volume `intranet_uploads` (monté sur `/app/public/uploads`) les conserve
+> lors d'un `docker compose up -d --build`. Sans ce volume, les fichiers
+> uploadés sont perdus à chaque recréation du conteneur (URLs `/uploads/...` en 404).
+
+Si vous déployez avec `docker-compose.prod.yml` (port **3031**), utilisez toujours
+le même fichier pour éviter de recréer le conteneur avec un autre jeu de volumes :
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Les anciennes photos déjà perdues ne peuvent pas être régénérées depuis le code.
+Si vous avez une sauvegarde, recopiez-la dans le volume avant ou après le redémarrage :
+
+```bash
+# Depuis le serveur, depuis un dossier contenant les anciens fichiers :
+docker cp ./anciens-uploads/. "$(docker compose -f docker-compose.prod.yml ps -q intranet)":/app/public/uploads/
+```
+
+Vérification : `curl -I http://127.0.0.1:3031/uploads/comments/mon-fichier.webp` doit renvoyer `200`.
+
 ## 4. HTTPS avec Nginx (recommandé)
 
 ```bash
@@ -53,7 +75,7 @@ server {
     listen 80;
     server_name intranet.votredomaine.com;
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3031;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
