@@ -6,6 +6,9 @@ import type { ReactionType } from "@/lib/reactions";
 export type FeedComment = {
   id: string;
   body: string;
+  imageUrl: string | null;
+  attachmentUrl: string | null;
+  attachmentName: string | null;
   createdAt: string;
   parentId: string | null;
   isAnonymous: boolean;
@@ -72,6 +75,9 @@ function buildCommentTree(
   flat: {
     id: string;
     body: string;
+    imageUrl: string | null;
+    attachmentUrl: string | null;
+    attachmentName: string | null;
     createdAt: Date;
     parentId: string | null;
     isAnonymous: boolean;
@@ -86,6 +92,9 @@ function buildCommentTree(
     map.set(c.id, {
       id: c.id,
       body: c.body,
+      imageUrl: c.imageUrl,
+      attachmentUrl: c.attachmentUrl,
+      attachmentName: c.attachmentName,
       createdAt: c.createdAt.toISOString(),
       parentId: c.parentId,
       isAnonymous: c.isAnonymous,

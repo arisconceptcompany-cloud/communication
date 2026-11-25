@@ -48,37 +48,6 @@ export async function FeedLeftRail() {
         </nav>
       </section>
 
-      {documents.length > 0 && (
-        <section className="feed-card fb-widget">
-          <h3>Procédures & chartes</h3>
-          <ul className="fb-doc-list">
-            {documents.map((doc) => {
-              const isPdf = doc.url ? /\.pdf$/i.test(doc.url) : false;
-              return (
-                <li key={doc.id}>
-                  {isContactsDoc(doc.title) ? (
-                    <ContactsButton className="fb-doc-link">
-                      {doc.title}
-                    </ContactsButton>
-                  ) : doc.url ? (
-                    <a
-                      href={doc.url}
-                      target={doc.url.startsWith("http") ? "_blank" : undefined}
-                      rel={doc.url.startsWith("http") ? "noopener noreferrer" : undefined}
-                      download={isPdf ? "" : undefined}
-                    >
-                      {doc.title}
-                    </a>
-                  ) : (
-                    <Link href="/hub">{doc.title}</Link>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
-
       <section className="feed-card fb-widget fb-birthdays">
         <h3>🎂 Anniversaires du jour</h3>
         {birthdays.length === 0 ? (

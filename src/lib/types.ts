@@ -36,6 +36,8 @@ export interface HubDocument {
   description: string | null;
   url: string | null;
   category: string;
+  noteLabel?: string | null;
+  noteText?: string | null;
   sortOrder: number;
 }
 

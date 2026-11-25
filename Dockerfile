@@ -24,7 +24,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/scripts/entrypoint.sh ./entrypoint.sh
-RUN mkdir -p /app/data /app/public/uploads && \
+RUN mkdir -p /app/data /app/public/uploads /app/public/uploads/comments && \
     chmod +x /app/entrypoint.sh && \
     chown -R nextjs:nodejs /app
 USER nextjs

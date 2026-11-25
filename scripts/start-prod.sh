@@ -7,7 +7,7 @@ if [ ! -f .next/standalone/server.js ]; then
   exit 1
 fi
 
-mkdir -p data public/uploads/chat
+mkdir -p data public/uploads/chat public/uploads/comments
 
 mkdir -p .next/standalone/public
 cp -r public/* .next/standalone/public/

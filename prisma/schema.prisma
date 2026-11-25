@@ -188,6 +188,9 @@ model PostComment {
   parent         PostComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies        PostComment[] @relation("CommentReplies")
   body           String
+  imageUrl       String?
+  attachmentUrl  String?
+  attachmentName String?
   isAnonymous    Boolean       @default(false)
   anonymousLabel String?
   createdAt      DateTime      @default(now())
@@ -313,6 +316,8 @@ model HubDocument {
   description String?
   url         String?
   category    String   @default("ressource")
+  noteLabel   String?
+  noteText    String?
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
 }

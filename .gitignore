@@ -10,3 +10,5 @@ data/*.db-journal
 .DS_Store
 public/uploads/posts/*
 !public/uploads/posts/.gitkeep
+public/uploads/comments/*
+!public/uploads/comments/.gitkeep

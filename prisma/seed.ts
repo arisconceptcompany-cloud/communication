@@ -138,6 +138,9 @@ async function main() {
       description: "Accès aux bulletins et calendrier de paie",
       url: "/doc/Comprendre%20son%20bulletin%20de%20paie.pdf",
       category: "paie",
+      noteLabel: "Note",
+      noteText:
+        "L'indemnité de repas (4 000 Ar) et l'indemnité de transport (3 000 Ar) sont toutes deux calculées par jour travaillé.",
       sortOrder: 0,
     },
     {

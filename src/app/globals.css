@@ -70,6 +70,7 @@ a:hover { @apply underline; }
   .btn-primary { @apply bg-[var(--orange)] text-white hover:bg-[var(--orange-hover)]; }
   .btn-secondary { @apply bg-[var(--bg-elevated)] text-[var(--text)] border border-[var(--border)]; }
   .btn-secondary:hover { @apply border-[var(--orange)] text-[var(--orange)]; }
+  .btn-danger { @apply bg-[#dc2626] text-white border-none hover:bg-[#b91c1c]; }
   .btn-ghost { @apply bg-transparent text-[var(--text-muted)] border border-transparent; }
   .btn-ghost:hover { @apply text-[var(--text)] border-[var(--border)]; }
   .btn-fb { @apply bg-[var(--fb-blue)] text-white; }
@@ -295,6 +296,9 @@ a:hover { @apply underline; }
   .hub-doc-item a { @apply text-[var(--navy)] no-underline font-semibold; }
   .hub-doc-item a:hover { @apply text-[var(--orange)]; }
   .hub-doc-link { @apply bg-transparent border-none p-0 text-left cursor-pointer text-[1rem] font-semibold text-[var(--navy)] hover:text-[var(--orange)] transition-colors; font-family: inherit; }
+  .hub-doc-badges { @apply inline-flex flex-wrap items-center gap-[0.35rem] ml-2; }
+  .hub-doc-note { @apply inline-flex items-center px-[0.5rem] py-[0.1rem] rounded-full border border-[#fecaca] bg-[#fee2e2] text-[#b91c1c] text-[0.75rem] font-semibold cursor-pointer transition-colors; font-family: inherit; }
+  .hub-doc-note:hover { @apply bg-[#fecaca] border-[#f87171]; }
   .hub-grid { @apply w-full; }
   .contacts-modal { width: min(560px, 100%); }
   .contacts-modal-header { @apply flex items-center justify-between gap-2 mb-2; }
@@ -513,13 +517,29 @@ a:hover { @apply underline; }
   .post-comment-author { @apply m-0 text-[0.88rem]; }
   .post-comment-dept { @apply font-normal text-[var(--text-muted)]; }
   .post-comment-text { @apply mt-[0.15rem] m-0 text-[0.92rem] whitespace-pre-wrap; }
+  .post-comment-attachments { @apply mt-1 flex flex-col items-start gap-2; }
+  .post-comment-image-link { @apply block max-w-full; }
+  .post-comment-image-link img { @apply block max-w-full h-auto rounded-[var(--radius-sm)] border border-[var(--border)]; max-height: 260px; }
+  .post-comment-file { @apply inline-flex items-center gap-[0.35rem] max-w-full px-[0.5rem] py-[0.3rem] rounded-[var(--radius-sm)] bg-[var(--bg-card)] border border-[var(--border)] text-[0.85rem] text-[var(--text)] no-underline break-all; }
+  .post-comment-file:hover { @apply border-[var(--orange)]; }
   .post-comment-actions { @apply flex gap-[0.65rem] text-[0.75rem] text-[var(--text-muted)]; }
   .post-comment-action { @apply border-none bg-none p-0 font-semibold text-[var(--text-muted)] cursor-pointer; font-family: inherit; font-size: inherit; }
+  .post-comment-action--danger { @apply text-[#b91c1c]; }
+  .post-comment-action--danger:hover { @apply underline; }
+  .post-comment-reply-form { @apply flex flex-wrap items-center gap-2 mt-2; }
+  .post-comment-reply-form input[type="text"] { @apply flex-1 min-w-[160px] px-[0.5rem] py-[0.35rem] border border-[var(--border)] rounded-full bg-[var(--bg)] text-[0.85rem]; font-family: inherit; }
   .post-comment-composer { @apply mt-3; }
   .post-comment-composer-label { @apply m-0 mb-[0.35rem] text-[0.85rem] font-semibold; }
   .post-comment-composer textarea { @apply w-full p-[0.5rem_0.65rem] border border-[var(--border)] rounded-[var(--radius)] resize-y; font-family: inherit; }
   .post-comment-composer-tools { @apply flex flex-wrap items-center gap-2 mt-2; }
-  .post-comment-tool { @apply text-[0.8rem] text-[var(--text-muted)]; }
+  .post-comment-tool { @apply inline-flex items-center px-[0.4rem] py-[0.2rem] rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg-card)] text-[0.8rem] text-[var(--text-muted)] cursor-pointer; font-family: inherit; }
+  .post-comment-tool input[type="file"] { display: none; }
+  .post-comment-tool:hover:not(:disabled) { @apply border-[var(--orange)] text-[var(--orange)]; }
+  .post-comment-tool--disabled { @apply opacity-50 cursor-not-allowed; }
+  .post-comment-attachment-chip { @apply inline-flex items-center gap-[0.3rem] max-w-[240px] px-[0.4rem] py-[0.2rem] rounded-full bg-[var(--bg)] border border-[var(--border)] text-[0.78rem] text-[var(--text-muted)]; }
+  .post-comment-attachment-chip > span { @apply truncate; }
+  .post-comment-attachment-chip button { @apply border-none bg-none p-0 text-[1rem] leading-none cursor-pointer text-[var(--text-muted)]; }
+  .post-comment-upload-error { @apply text-[0.78rem] text-[#b91c1c]; }
   .post-comment-anon { @apply inline-flex items-center gap-[0.35rem] text-[0.8rem] ml-auto cursor-pointer; }
   .post-card-header { @apply flex gap-[0.65rem] items-start mb-3; }
   .post-card-header-main { @apply flex-1 min-w-0; }
@@ -760,6 +780,10 @@ a:hover { @apply underline; }
 .modal-card h3 { @apply m-0 mb-2 text-[1.1rem] text-[var(--navy)]; }
 .modal-card p { @apply m-0 mb-1 text-[0.9rem] text-[var(--text-muted)] leading-5; }
 .modal-actions { @apply flex gap-[0.65rem] justify-end mt-6; }
+.modal-actions--center { @apply justify-center; }
+.hub-note-modal { @apply text-center; }
+.hub-note-icon { @apply text-[2rem] leading-none mb-2; }
+.hub-note-modal p { @apply text-[0.95rem] leading-[1.6]; }
 .messenger-delete-options { @apply flex flex-col gap-2; }
 .messenger-delete-option { @apply flex flex-col gap-[0.15rem] w-full text-left px-4 py-3 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--bg)] cursor-pointer hover:border-[var(--orange)] hover:bg-[var(--bg-elevated)] transition-colors; font-family: inherit; }
 .messenger-delete-option strong { @apply text-[0.9rem] text-[var(--text)]; }

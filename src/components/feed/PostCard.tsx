@@ -435,6 +435,7 @@ export function PostCard({ post, currentUser }: Props) {
           postId={post.id}
           comments={comments}
           allowAnonymous={post.allowAnonymousComments}
+          currentUser={currentUser}
           onCommentsChange={setComments}
         />
       )}
