@@ -62,6 +62,21 @@ docker cp ./anciens-uploads/. "$(docker compose -f docker-compose.prod.yml ps -q
 
 Vérification : `curl -I http://127.0.0.1:3031/uploads/comments/mon-fichier.webp` doit renvoyer `200`.
 
+Si vous n’avez pas de sauvegarde, nettoyez les références cassées restées en base
+(les photos ne reviendront pas, mais les erreurs 404 disparaîtront) :
+
+```bash
+# Rapport, sans modification
+docker compose -f docker-compose.prod.yml exec intranet npm run uploads:check
+
+# Nettoyage effectif des champs cassés
+docker compose -f docker-compose.prod.yml exec intranet npm run uploads:clean
+```
+
+Le script supprime uniquement les URL `/uploads/...` dont le fichier est absent.
+Un commentaire composé uniquement d’une photo perdue est supprimé ; un commentaire
+avec du texte est conservé, sans la pièce jointe cassée.
+
 ## 4. HTTPS avec Nginx (recommandé)
 
 ```bash
