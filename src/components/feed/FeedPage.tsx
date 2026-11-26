@@ -64,12 +64,14 @@ export async function FeedPage({
 
   return (
     <>
-      {layout === "home" && <HomeHeroBanner />}
-
-      <header className="feed-page-header">
-        <h1>{title}</h1>
-        <p>{subtitle}</p>
-      </header>
+      {layout === "home" ? (
+        <HomeHeroBanner title={title} subtitle={subtitle} />
+      ) : (
+        <header className="feed-page-header">
+          <h1>{title}</h1>
+          <p>{subtitle}</p>
+        </header>
+      )}
 
       {layout === "home" ? (
         <div className="fb-two-col">

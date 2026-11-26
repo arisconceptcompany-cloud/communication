@@ -134,22 +134,18 @@ a:hover { @apply underline; }
   .feed-page-header h1 { @apply m-0 mb-2 text-[1.5rem] text-white; }
   .feed-page-header p { @apply m-0 opacity-90 text-[0.95rem] max-w-[640px] text-white; }
 
-  /* Bandeau compact au-dessus de l'en-tête bleu : photo + texte animés */
-  .home-promo-strip {
-    @apply flex items-center justify-between gap-4 rounded-[var(--radius-sm)] px-4 py-2 mb-3;
-    min-height: 64px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  }
-  .home-promo-copy { @apply flex-1 min-w-0 flex items-center justify-start text-left gap-1; }
+  /* Carrousel intégré à la bannière bleue */
+  .feed-page-header--animated { @apply flex items-center justify-between gap-8; }
+  .feed-page-copy { @apply flex-1 min-w-0; }
+  .feed-page-promo { @apply flex items-center gap-3 shrink-0; }
+  .home-promo-copy { @apply flex items-center justify-start text-left gap-1 min-w-0; }
   .home-promo-logo { @apply h-[22px] w-auto shrink-0; }
   .home-promo-message {
-    @apply text-[0.92rem] leading-snug font-semibold text-[var(--text)];
+    @apply text-[0.92rem] leading-snug font-semibold text-white max-w-[460px];
     font-family: var(--font-heading);
   }
   .home-promo-dash { @apply text-[var(--orange)] font-bold; }
-  .home-promo-photo { @apply w-14 h-14 shrink-0 ml-auto rounded-full; }
+  .home-promo-photo { @apply w-14 h-14 shrink-0 rounded-full; }
   .home-promo-photo-frame {
     @apply relative w-full h-full overflow-hidden rounded-full;
     border-bottom: 2px solid var(--orange);
@@ -825,11 +821,17 @@ a:hover { @apply underline; }
   .fb-two-col { grid-template-columns: 1fr; }
   .fb-left-rail { @apply static grid gap-[0.85rem]; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
   .rh-content-grid { grid-template-columns: 1fr; }
+  .feed-page-header--animated { @apply flex-col items-start gap-4; }
+  .feed-page-promo { @apply w-full justify-between gap-3; }
+  .home-promo-message { @apply max-w-none text-[0.86rem]; }
 }
 @media (max-width: 700px) {
-  .home-promo-strip { @apply px-3 py-2 gap-3; }
-  .home-promo-copy strong { @apply text-[0.82rem]; }
-  .home-promo-photo { @apply w-12 h-12; }
+  .feed-page-header--animated { @apply p-5; }
+  .feed-page-header p { max-width: none; }
+  .feed-page-promo { @apply gap-2; }
+  .home-promo-logo { @apply h-5; }
+  .home-promo-message { @apply text-[0.8rem]; }
+  .home-promo-photo { @apply w-11 h-11; }
 }
 @media (max-width: 900px) {
   .top-bar-center { @apply hidden; }

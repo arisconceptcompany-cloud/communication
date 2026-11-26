@@ -1,29 +1,29 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import "./HomeHeroBanner.css";
 
 type Slide = {
   image: string;
   name: string;
-  message: string;
+  lines: [string, string];
 };
 
-/** L'ordre est mélangé à chaque tour : 3 photos / 3 textes, un seul à la fois. */
 const SLIDES: Slide[] = [
   {
     image: "/sary/HARISOA.webp",
     name: "Harisoa",
-    message: "L'intellingence tarifaire humaine et augmantée",
+    lines: ["L'intelligence tarifaire", "humaine et augmentée"],
   },
   {
     image: "/sary/MURIELLE.webp",
     name: "Murielle",
-    message: "De la donne brute a la decision eclairee",
+    lines: ["De la donnée brute", "à la décision éclairée"],
   },
   {
     image: "/sary/OLIVA.webp",
     name: "Oliva",
-    message: "La precision de l'IA. La fiabilite de l'humain",
+    lines: ["La précision de l'IA.", "La fiabilité de l'humain"],
   },
 ];
 
@@ -36,19 +36,48 @@ function shuffle(): number[] {
   return indexes;
 }
 
-export function HomeHeroBanner() {
-  // Valeurs déterministes au premier rendu pour éviter toute erreur #418.
+/** Découpe une ligne en mots, chacun dans un masque pour l'effet "glisse vers le haut". */
+function Words({ text, offset }: { text: string; offset: number }) {
+  return (
+    <>
+      {text.split(" ").map((word, i) => (
+        <span className="hero-word-mask" key={`${word}-${i}`}>
+          <span
+            className="hero-word"
+            style={{ "--i": offset + i } as CSSProperties}
+          >
+            {word}
+          </span>
+        </span>
+      ))}
+    </>
+  );
+}
+
+type Props = {
+  title: string;
+  subtitle: string;
+};
+
+// Durée de l'animation de sortie avant de changer de slide (doit rester < intervalle).
+const EXIT_MS = 550;
+const INTERVAL_MS = 4500;
+
+export function HomeHeroBanner({ title, subtitle }: Props) {
+  // Valeurs déterministes au premier rendu pour éviter l'erreur d'hydratation #418.
   const [sequence, setSequence] = useState<number[]>([0, 1, 2]);
   const [position, setPosition] = useState(0);
-  const [visible, setVisible] = useState(true);
+  const [leaving, setLeaving] = useState(false);
+  const [ready, setReady] = useState(false);
   const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     setSequence(shuffle());
     setPosition(Math.floor(Math.random() * SLIDES.length));
+    setReady(true);
 
     const interval = window.setInterval(() => {
-      setVisible(false);
+      setLeaving(true);
       timeoutRef.current = window.setTimeout(() => {
         setPosition((current) => {
           const next = current + 1;
@@ -58,9 +87,9 @@ export function HomeHeroBanner() {
           }
           return next;
         });
-        setVisible(true);
-      }, 350);
-    }, 4500);
+        setLeaving(false);
+      }, EXIT_MS);
+    }, INTERVAL_MS);
 
     return () => {
       window.clearInterval(interval);
@@ -69,37 +98,46 @@ export function HomeHeroBanner() {
   }, []);
 
   const active = SLIDES[sequence[position] ?? 0];
-  const animationClass = visible
-    ? "feed-hero-fade--in"
-    : "feed-hero-fade--out";
 
   return (
-    <section className="home-promo-strip" aria-label="Message VALUE-IT">
-      <div className="home-promo-copy" aria-live="polite">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="home-promo-logo"
-          src="/logo-valueit-compact.svg"
-          alt="VALUE-IT"
-          width={64}
-          height={22}
-        />
-        <strong className={`home-promo-message home-promo-fade ${animationClass}`}>
-          <span className="home-promo-dash">–</span> {active.message}
-        </strong>
+    <header className="feed-page-header hero-banner">
+      <div className="hero-copy">
+        <h1>{title}</h1>
+        <p>{subtitle}</p>
       </div>
 
-      <div className={`home-promo-photo home-promo-fade ${animationClass}`}>
-        <div className="home-promo-photo-frame">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={active.image}
-            alt={`Portrait VALUE-IT — ${active.name}`}
-            width={56}
-            height={56}
-          />
-        </div>
+      <div className={`hero-right ${leaving ? "hero-out" : ""}`}>
+        {ready && (
+          <>
+            {/* key : remonte l'élément à chaque slide, ce qui rejoue l'animation d'entrée */}
+            <div
+              key={`text-${active.name}`}
+              className="hero-message"
+              aria-live="polite"
+            >
+              <span className="hero-line hero-line--1">
+                <Words text={active.lines[0]} offset={0} />
+              </span>
+              <span className="hero-line hero-line--2">
+                <Words
+                  text={active.lines[1]}
+                  offset={active.lines[0].split(" ").length}
+                />
+              </span>
+            </div>
+
+            <div key={`photo-${active.name}`} className="hero-photo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={active.image}
+                alt={`Portrait VALUE-IT — ${active.name}`}
+                width={160}
+                height={200}
+              />
+            </div>
+          </>
+        )}
       </div>
-    </section>
+    </header>
   );
 }

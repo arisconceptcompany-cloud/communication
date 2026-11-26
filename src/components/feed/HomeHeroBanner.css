@@ -1,0 +1,202 @@
+/* ===== Bandeau animé du fil d'actualité ===== */
+.hero-banner {
+  display: flex;
+  align-items: flex-end;          /* la photo repose sur le bas du bandeau */
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 2rem 2rem 0;           /* aucun padding en bas : la photo touche la ligne */
+  overflow: hidden;
+}
+
+.hero-banner .hero-copy {
+  flex: 1;
+  min-width: 0;
+  align-self: center;
+  padding-bottom: 1.5rem;
+}
+
+.hero-right {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  flex-shrink: 0;
+  min-height: 200px;              /* évite un saut de hauteur avant l'affichage */
+}
+
+/* ---------- Texte ---------- */
+.hero-message {
+  align-self: center;
+  padding-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1.2;
+  text-align: right;
+}
+
+.hero-line { display: block; white-space: nowrap; }
+.hero-line--1 { color: #fff; }
+.hero-line--2 { color: var(--orange); }
+
+/* Masque : cache le mot tant qu'il est sous la ligne */
+.hero-word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding: 0.08em 0 0.16em;
+  margin-right: 0.28em;
+}
+.hero-word-mask:last-child { margin-right: 0; }
+
+.hero-word {
+  display: inline-block;
+  animation: hero-word-in 750ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i) * 80ms + 150ms);
+}
+
+/* Trait orange qui se dessine sous le message */
+.hero-message::after {
+  content: "";
+  align-self: flex-end;
+  width: 56px;
+  height: 3px;
+  margin-top: 0.5rem;
+  border-radius: 2px;
+  background: var(--orange);
+  transform-origin: right center;
+  animation: hero-bar-in 650ms cubic-bezier(0.2, 0.8, 0.2, 1) 550ms both;
+}
+
+/* ---------- Photo ---------- */
+.hero-photo { position: relative; }
+
+/* Halo orange derrière la personne */
+.hero-photo::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(246, 138, 21, 0.55) 0%,
+    rgba(246, 138, 21, 0) 65%
+  );
+  transform: translate(-50%, 35%);
+  animation: hero-halo-in 1100ms ease-out both;
+  z-index: 0;
+}
+
+.hero-photo img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  height: 200px;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  object-position: bottom;
+  animation: hero-photo-in 850ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* ---------- Sortie (classe posée sur .hero-right) ---------- */
+.hero-out .hero-word {
+  animation: hero-word-out 320ms cubic-bezier(0.5, 0, 0.8, 0.4) both;
+  animation-delay: calc(var(--i) * 35ms);
+}
+.hero-out .hero-message::after {
+  animation: hero-bar-out 250ms ease-in both;
+}
+.hero-out .hero-photo img {
+  animation: hero-photo-out 380ms ease-in both;
+}
+.hero-out .hero-photo::before {
+  animation: hero-halo-out 320ms ease-in both;
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes hero-word-in {
+  from { transform: translateY(115%) rotate(4deg); opacity: 0; filter: blur(4px); }
+  to   { transform: none; opacity: 1; filter: blur(0); }
+}
+@keyframes hero-word-out {
+  from { transform: none; opacity: 1; }
+  to   { transform: translateY(-115%); opacity: 0; }
+}
+@keyframes hero-bar-in {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes hero-bar-out {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+@keyframes hero-photo-in {
+  from {
+    clip-path: inset(100% 0 0 0);       /* se révèle de bas en haut */
+    transform: translateY(30px) scale(1.06);
+    filter: blur(8px);
+    opacity: 0;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+@keyframes hero-photo-out {
+  from { transform: none; filter: blur(0); opacity: 1; }
+  to   { transform: translateY(16px) scale(0.97); filter: blur(6px); opacity: 0; }
+}
+@keyframes hero-halo-in {
+  from { opacity: 0; transform: translate(-50%, 35%) scale(0.4); }
+  45%  { opacity: 1; }
+  to   { opacity: 0.75; transform: translate(-50%, 35%) scale(1); }
+}
+@keyframes hero-halo-out {
+  from { opacity: 0.75; transform: translate(-50%, 35%) scale(1); }
+  to   { opacity: 0; transform: translate(-50%, 35%) scale(0.7); }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1000px) {
+  .hero-right { min-height: 150px; }
+  .hero-message { font-size: 1.15rem; }
+  .hero-photo img { height: 150px; }
+  .hero-photo::before { width: 200px; height: 200px; }
+}
+
+@media (max-width: 700px) {
+  .hero-banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1.25rem 1.25rem 0;
+  }
+  .hero-banner .hero-copy { padding-bottom: 0; }
+  .hero-right { width: 100%; justify-content: space-between; min-height: 130px; }
+  .hero-message { text-align: left; font-size: 1rem; padding-bottom: 1rem; }
+  .hero-message::after { align-self: flex-start; transform-origin: left center; }
+  .hero-photo img { height: 130px; }
+  .hero-photo::before { width: 170px; height: 170px; }
+}
+
+/* Accessibilité : pas d'animation si l'utilisateur la désactive */
+@media (prefers-reduced-motion: reduce) {
+  .hero-word,
+  .hero-message::after,
+  .hero-photo img,
+  .hero-photo::before {
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
+  }
+  .hero-photo::before { transform: translate(-50%, 35%) !important; }
+}
