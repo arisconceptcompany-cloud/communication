@@ -4,15 +4,8 @@ import birthdayRecords from "./birthdays.json";
 
 const prisma = new PrismaClient();
 
-function todayBirthYear(year: number) {
-  const d = new Date();
-  d.setFullYear(year);
-  return d;
-}
-
 async function main() {
   const passwordHash = await bcrypt.hash("ValueIT2026!", 12);
-  const employeBirth = todayBirthYear(1992);
 
   await prisma.user.upsert({
     where: { email: "admin@value-it.mg" },
@@ -38,16 +31,17 @@ async function main() {
     },
   });
 
+  // Pas de date de naissance sur le compte démo : il ne doit plus apparaître
+  // dans le widget « Anniversaires du jour ».
   await prisma.user.upsert({
     where: { email: "employe@value-it.mg" },
-    update: { birthDate: employeBirth },
+    update: { birthDate: null },
     create: {
       email: "employe@value-it.mg",
       name: "Employé Démo",
       passwordHash,
       role: Role.EMPLOYEE,
       department: "Opérations",
-      birthDate: employeBirth,
     },
   });
 
