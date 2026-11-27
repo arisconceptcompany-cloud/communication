@@ -13,6 +13,7 @@ import {
   Lightbulb,
   Radio,
   Network,
+  Users,
   Menu,
   X,
   LogOut,
@@ -22,6 +23,7 @@ const NAV_ICONS = [
   { href: "/", label: "Accueil", icon: Home },
   { href: "/organigramme", label: "Organigramme", icon: Network },
   { href: "/rh", label: "Espace RH", icon: Radio },
+  { href: "/anniversaires", label: "Employés", icon: Users, rhOnly: true },
   { href: "/hub", label: "Hub", icon: FolderOpen },
   { href: "/annonces", label: "Annonces", icon: Megaphone },
   { href: "/idees", label: "Idées", icon: Lightbulb },
@@ -56,6 +58,9 @@ export function TopBar({ user, notificationCount: initialCount = 0 }: Props) {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
+  const isRh = user?.role === "RH" || user?.role === "ADMIN";
+  const navItems = NAV_ICONS.filter((item) => !item.rhOnly || isRh);
+
   return (
     <header className="top-bar top-bar--corporate">
       <div className="top-bar-left">
@@ -82,7 +87,7 @@ export function TopBar({ user, notificationCount: initialCount = 0 }: Props) {
       </div>
 
       <nav className="top-bar-center" aria-label="Accès rapide">
-        {NAV_ICONS.map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon;
           return (
             <Link
@@ -154,7 +159,7 @@ export function TopBar({ user, notificationCount: initialCount = 0 }: Props) {
             <div className="top-bar-mobile-search">
               <GlobalSearch />
             </div>
-            {NAV_ICONS.map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon;
               return (
                 <Link

@@ -321,3 +321,16 @@ model HubDocument {
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
 }
+
+/// Liste RH privée des anniversaires : consultable et modifiable par RH/Admin uniquement.
+model EmployeeBirthday {
+  id        String   @id @default(cuid())
+  matricule String   @unique
+  fullName  String
+  /// Date au format YYYY-MM-DD (sans timezone : c'est une date civile).
+  birthDate String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([birthDate])
+}

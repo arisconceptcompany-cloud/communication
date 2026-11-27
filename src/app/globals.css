@@ -785,6 +785,43 @@ a:hover { @apply underline; }
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes sparklePulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+@keyframes namePop {
+  0% { opacity: 0; transform: translateY(8px) scale(0.9); filter: blur(2px); }
+  60% { opacity: 1; transform: translateY(-2px) scale(1.04); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes nameGlow {
+  0%    { text-shadow: none; }
+  0.03% { text-shadow: 0 0 12px rgba(246, 138, 21, 0.6); }
+  0.09% { text-shadow: 0 0 12px rgba(246, 138, 21, 0.6); }
+  0.14% { text-shadow: none; }
+  100%  { text-shadow: none; }
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-12px) rotate(0deg); opacity: 0; }
+  12% { opacity: 0.95; }
+  100% { transform: translateY(180px) translateX(var(--drift)) rotate(540deg); opacity: 0; }
+}
+@keyframes fireworkBurst {
+  0%, 60% { opacity: 0; transform: rotate(var(--angle)) translateY(0) scale(0); }
+  70% { opacity: 1; transform: rotate(var(--angle)) translateY(-12px) scale(1); }
+  100% { opacity: 0; transform: rotate(var(--angle)) translateY(-26px) scale(0.4); }
+}
+@keyframes champagnePop {
+  0%, 68% { transform: rotate(-8deg) scale(1); }
+  76% { transform: rotate(10deg) scale(1.12); }
+  84% { transform: rotate(-6deg) scale(1.04); }
+  100% { transform: rotate(-8deg) scale(1); }
+}
+@keyframes corkPop {
+  0%, 68% { opacity: 0; transform: translateY(6px) scale(0.6); }
+  76% { opacity: 1; transform: translateY(-14px) scale(1.2) rotate(20deg); }
+  100% { opacity: 0; transform: translateY(-24px) scale(0.8) rotate(-10deg); }
+}
 
 .modal-overlay {
   @apply fixed inset-0 flex items-center justify-center z-[1000] p-4;
@@ -811,6 +848,284 @@ a:hover { @apply underline; }
 .messenger-delete-option span { @apply text-[0.78rem] text-[var(--text-muted)]; }
 .messenger-delete-option--disabled { @apply opacity-50 cursor-not-allowed hover:border-[var(--border)] hover:bg-[var(--bg)]; }
 
+/* Liste RH des anniversaires */
+.birthdays-page { @apply w-full; }
+.birthday-panel { @apply p-0 overflow-hidden; }
+.birthday-toolbar { @apply flex items-center justify-between gap-4 p-4 border-b border-[var(--border)] flex-wrap; }
+.birthday-toolbar h2 { @apply m-0 text-[1.1rem] text-[var(--navy)]; }
+.birthday-toolbar-actions { @apply flex items-center gap-2; }
+.birthday-toolbar-actions input {
+  @apply p-[0.5rem_0.75rem] border border-[var(--border)] rounded-[var(--radius-sm)] bg-white text-[var(--text)] text-[0.9rem];
+  font-family: inherit;
+  min-width: 250px;
+}
+.birthday-table-wrap { @apply overflow-x-auto; }
+.birthday-table { @apply w-full border-collapse text-[0.9rem]; }
+.birthday-table th, .birthday-table td { @apply text-left px-4 py-3 border-b border-[var(--border)] align-middle; }
+.birthday-table th { @apply text-[0.78rem] uppercase tracking-wide text-[var(--text-muted)] bg-[var(--bg-elevated)]; }
+.birthday-table tbody tr:hover { @apply bg-[var(--bg-elevated)]; }
+.birthday-actions-col { @apply text-right; }
+.birthday-actions { @apply flex justify-end gap-2; }
+.birthday-empty { @apply text-center text-[var(--text-muted)] py-8; }
+.birthday-form .form-group { @apply mb-4; }
+.birthday-delete-modal strong { @apply text-[var(--text)]; }
+.birthday-delete-modal .fb-widget-desc { @apply mt-2; }
+
+/* Anniversaires du jour dans le fil d'actualité */
+.fb-birthdays { position: relative; }
+.fb-birthdays--active {
+  border-color: rgba(246, 138, 21, 0.5);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(246, 138, 21, 0.09) 100%);
+}
+.fb-birthdays > h3,
+.fb-birthdays > p,
+.fb-birthdays > ul,
+.fb-birthdays > .fb-birthday-wish { position: relative; z-index: 1; }
+
+/* --- Titre --- */
+.fb-birthdays-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+/* Cadeau : statique (plus d'animation) */
+.fb-birthdays-gift {
+  display: inline-block;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.fb-birthdays-count {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 0.72rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(246, 138, 21, 0.35);
+}
+
+/* --- Liste --- */
+.fb-birthday-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.fb-birthday-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(246, 138, 21, 0.22);
+  background: color-mix(in srgb, var(--bg-card) 78%, transparent);
+  backdrop-filter: blur(2px);
+}
+.fb-birthdays-sparkle {
+  @apply inline-block leading-none mt-[0.1rem];
+  animation: sparklePulse 1.6s ease-in-out infinite;
+}
+.fb-birthday-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.fb-birthday-dept {
+  margin-top: 0.1rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+.fb-birthdays-empty {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  text-align: center;
+}
+
+/* --- Nom (animation existante conservée) --- */
+.fb-birthday-name {
+  @apply inline-block font-semibold text-[var(--text)];
+  animation:
+    namePop 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both,
+    nameGlow 3600s linear infinite;
+  animation-delay:
+    calc(var(--i) * 120ms),
+    calc(var(--i) * 120ms + 800ms);
+}
+.fb-birthday-name { position: relative; font-size: 0.98rem; }
+
+/* --- Prénom : reflet lumineux + soulignement, rejoués toutes les heures --- */
+.fb-birthday-first {
+  color: var(--orange);
+  background-image: linear-gradient(
+    105deg,
+    var(--orange) 0%,
+    var(--orange) 42%,
+    #fff1cf 50%,
+    var(--orange) 58%,
+    var(--orange) 100%
+  );
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  animation: nameShine 3600s linear infinite;
+  animation-delay: calc(var(--i) * 120ms + 1200ms);
+}
+.fb-birthday-name::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--orange), #ffd166);
+  transform-origin: left center;
+  transform: scaleX(0);
+  opacity: 0;
+  animation: nameUnderline 3600s linear infinite;
+  animation-delay: calc(var(--i) * 120ms + 1200ms);
+}
+
+/* --- Message de vœux --- */
+.fb-birthday-wish {
+  margin-top: 0.85rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed rgba(246, 138, 21, 0.45);
+  background: linear-gradient(135deg, rgba(246, 138, 21, 0.14), rgba(246, 138, 21, 0.04));
+  animation: wishFadeIn 900ms ease both;
+  animation-delay: 400ms;
+}
+.fb-birthday-wish-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.3rem;
+  font-family: var(--font-heading);
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--orange-hover);
+}
+.fb-birthday-wish-title svg { color: var(--orange); fill: currentColor; flex-shrink: 0; }
+.fb-birthday-wish-text {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.fb-birthday-wish-sign {
+  margin: 0.45rem 0 0;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+@keyframes nameShine {
+  0%    { background-position: 100% 0; }
+  0.05% { background-position: 0% 0; }
+  100%  { background-position: 0% 0; }
+}
+@keyframes nameUnderline {
+  0%    { transform: scaleX(0); opacity: 0; }
+  0.02% { opacity: 1; }
+  0.05% { transform: scaleX(1); opacity: 1; }
+  0.11% { transform: scaleX(1); opacity: 1; }
+  0.15% { transform: scaleX(1); opacity: 0; }
+  100%  { transform: scaleX(1); opacity: 0; }
+}
+@keyframes wishFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Feu d'artifice + paillettes + champagne dans le cadre (inchangé) */
+.fb-birthdays-celebration {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
+  pointer-events: none;
+  z-index: 0;
+}
+.fb-birthday-confetti {
+  position: absolute;
+  top: -12px;
+  left: var(--x);
+  width: 6px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--color);
+  opacity: 0;
+  animation: confettiFall 3.2s linear infinite;
+  animation-delay: var(--delay);
+}
+.fb-birthday-firework {
+  position: absolute;
+  right: 28px;
+  top: 16px;
+  width: 0;
+  height: 0;
+}
+.fb-birthday-firework span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--orange);
+  opacity: 0;
+  animation: fireworkBurst 2.8s ease-out infinite;
+  animation-delay: var(--delay);
+}
+.fb-birthdays-champagne {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  font-size: 1.4rem;
+  transform-origin: bottom center;
+  animation: champagnePop 3.4s ease-in-out infinite;
+}
+.fb-birthday-cork {
+  position: absolute;
+  right: 22px;
+  bottom: 34px;
+  font-size: 0.9rem;
+  opacity: 0;
+  animation: corkPop 3.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fb-birthdays-sparkle,
+  .fb-birthday-name,
+  .fb-birthday-first,
+  .fb-birthday-name::after,
+  .fb-birthday-wish,
+  .fb-birthday-confetti,
+  .fb-birthday-firework span,
+  .fb-birthdays-champagne,
+  .fb-birthday-cork { animation: none; }
+}
+
 [data-theme="dark"] .top-bar--corporate { background: linear-gradient(180deg, #00205B 0%, #001438 100%); }
 [data-theme="dark"] .feed-card, [data-theme="dark"] .fb-widget, [data-theme="dark"] .messenger-panel { @apply border-[var(--border)]; }
 [data-theme="dark"] .messenger-bubble-wrap:not(.messenger-bubble-wrap--mine) .messenger-bubble { @apply bg-[var(--bg-elevated)] text-[var(--text)]; }
@@ -832,6 +1147,9 @@ a:hover { @apply underline; }
   .home-promo-logo { @apply h-5; }
   .home-promo-message { @apply text-[0.8rem]; }
   .home-promo-photo { @apply w-11 h-11; }
+  .birthday-toolbar-actions { @apply w-full; }
+  .birthday-toolbar-actions input { @apply flex-1 min-w-0; }
+  .birthday-table th, .birthday-table td { @apply px-3 py-2 whitespace-nowrap; }
 }
 @media (max-width: 900px) {
   .top-bar-center { @apply hidden; }

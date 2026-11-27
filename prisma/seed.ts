@@ -1,5 +1,6 @@
 import { PrismaClient, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import birthdayRecords from "./birthdays.json";
 
 const prisma = new PrismaClient();
 
@@ -195,6 +196,18 @@ async function main() {
     } else {
       await prisma.hubDocument.create({ data: doc });
     }
+  }
+
+  // Liste privée des anniversaires RH.
+  // Source : doc/ANNIVERSAIRE.xlsx, exporté dans prisma/birthdays.json.
+  // L'upsert par matricule rend le seed idempotent et conserve les employés
+  // ajoutés manuellement depuis l'interface RH.
+  for (const record of birthdayRecords) {
+    await prisma.employeeBirthday.upsert({
+      where: { matricule: record.matricule },
+      update: { fullName: record.fullName, birthDate: record.birthDate },
+      create: record,
+    });
   }
 
   const michael = await prisma.user.upsert({

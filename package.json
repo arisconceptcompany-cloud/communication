@@ -13,6 +13,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "uploads:check": "tsx scripts/cleanup-missing-uploads.ts",
     "uploads:clean": "tsx scripts/cleanup-missing-uploads.ts --fix",
+    "birthdays:test": "tsx scripts/add-birthday-test.ts",
+    "birthdays:test:remove": "tsx scripts/add-birthday-test.ts --remove",
     "test:idees": "tsx scripts/test-idea-box.ts",
     "lint": "next lint"
   },

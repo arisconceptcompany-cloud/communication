@@ -5,7 +5,8 @@ import { jwtVerify } from "jose";
 const COOKIE_NAME = "valueit_session";
 
 const PUBLIC_PATHS = ["/login", "/hub", "/idees", "/messagerie"];
-const RH_PATHS: string[] = [];
+const RH_PATHS = ["/anniversaires"];
+const RH_API_PATHS = ["/api/anniversaires"];
 const API_PUBLIC = ["/api/chat", "/api/idees"];
 
 function getSecret() {
@@ -70,6 +71,12 @@ export async function middleware(request: NextRequest) {
   if (RH_PATHS.some((p) => pathname.startsWith(p))) {
     if (role !== "RH" && role !== "ADMIN") {
       return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  if (RH_API_PATHS.some((p) => pathname.startsWith(p))) {
+    if (role !== "RH" && role !== "ADMIN") {
+      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
   }
 
